@@ -8,17 +8,24 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ppg-user" />
-        <module name="ppg-gateway" />
+        <module name="ppg-merchant" />
         <module name="ppg-common" />
+        <module name="contract-common" />
+        <module name="ppg-gateway" />
         <module name="ppg-eureka" />
+        <module name="contract-template" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="contract-common" options="-parameters" />
+      <module name="contract-template" options="-parameters" />
       <module name="ppg-common" options="-parameters" />
+      <module name="ppg-contract" options="" />
       <module name="ppg-eureka" options="-parameters" />
       <module name="ppg-gateway" options="-parameters" />
+      <module name="ppg-merchant" options="-parameters" />
       <module name="ppg-user" options="-parameters" />
     </option>
   </component>

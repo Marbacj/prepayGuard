@@ -30,6 +30,7 @@ public class JwtServiceImpl implements JwtService {
 
     private static int expireTime = 60 * 60 * 1000;
 
+
     public void setExpireTime(int expireTime) {
         JwtServiceImpl.expireTime = expireTime * 60 * 1000;
     }
@@ -42,22 +43,21 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean register(RegisterRequest registerRequest) {
 
-        String name = registerRequest.getUserName();
+        String userName = registerRequest.getUserName();
         String idCardNumber = registerRequest.getIdCardNumber();
         String password = registerRequest.getPassword();
         String email = registerRequest.getEmail();
         String phoneNumber = registerRequest.getPhoneNumber();
         String accountName = registerRequest.getAccountName();
 
-        if (userDao.existsByUserNameAndIdCardNumber(name, idCardNumber)) {
-            logger.warn("Register failed: userName={} and idCardNumber={} already exist", name, idCardNumber);
+        if (userDao.existsByUserNameAndIdCardNumber(userName, idCardNumber)) {
+            logger.warn("Register failed: userName={} and idCardNumber={} already exist", userName, idCardNumber);
             return false;
         }
 
-        userDao.save(new User(
-                name, password, idCardNumber, phoneNumber, accountName,email
-        ));
-        logger.info("Register success: userName={}, idCardNumber={}", name, idCardNumber);
+        userDao.save(new User(userName, password, idCardNumber, phoneNumber, accountName, email));
+
+        logger.info("Register success: userName={}, idCardNumber={}", userName, idCardNumber);
         return true;
     }
 

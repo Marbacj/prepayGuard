@@ -1,6 +1,7 @@
 package com.mapoh.ppg;
 
 import com.mapoh.ppg.controller.UserController;
+import com.mapoh.ppg.dto.RegisterRequest;
 import com.mapoh.ppg.dto.UserInfoRequest;
 import com.mapoh.ppg.entity.User;
 import com.mapoh.ppg.service.JwtService;
@@ -29,15 +30,16 @@ public class UserApplicationTest {
     //success
     @Test
     public void testRegister() {
-        User user = new User();
-        user.setUserName("testadfsa");
-        user.setPassword("123456");
-        user.setEmail("test@test.com");
-        user.setAccountName("tes111t");
-        user.setIdCardNumber("wsdsdfsf");
-        user.setPhoneNumber("123sdf124");
 
-        jwtService.register(user);
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setUserName("test");
+        registerRequest.setPassword("123456");
+        registerRequest.setIdCardNumber("syslog");
+        registerRequest.setEmail("test@test.com");
+        registerRequest.setPhoneNumber("1388888888");
+        registerRequest.setAccountName("fake");
+
+        jwtService.register(registerRequest);
         // 使用 jwtService 测试逻辑
         System.out.println("Test register logic");
     }

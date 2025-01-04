@@ -12,6 +12,8 @@
         <module>ppg-gateway</module>
         <module>ppg-user</module>
         <module>ppg-common</module>
+        <module>ppg-merchant</module>
+        <module>ppg-contract</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

@@ -52,7 +52,7 @@ public class User {
     @Column(name = "phone_number", nullable = false, length = 11)
     private String phoneNumber;
 
-    @Column(name = "account_name")
+    @Column(name = "account_name", nullable = false)
     private String accountName;
 
     @Column(name = "email")
@@ -65,6 +65,13 @@ public class User {
     @CreationTimestamp
     private Timestamp createdAt;
 
-    public User(String userName, String password, String idCardNumber, String phoneNumber, String accountName, String email) {}
+    public User(String userName, String password, String idCardNumber, String phoneNumber, String accountName, String email) {
+        this.userName = userName;
+        this.password = password;
+        this.idCardNumber = idCardNumber;
+        this.phoneNumber = phoneNumber;
+        this.accountName = accountName;
+        this.email = email;
+    }
     // Getters and Setters
 }

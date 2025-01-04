@@ -32,9 +32,10 @@ public class AuthController {
     }
 
     /**
-     * 1. 注册成功
-     * 2. 信息重复，注册失败
-     * @param user
+     *
+     * 成功注册
+     * todo：信息重复
+     * @param registerRequest
      * @return
      */
     @RequestMapping(value = "/register",method = RequestMethod.POST)

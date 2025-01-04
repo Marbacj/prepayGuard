@@ -16,9 +16,14 @@ zuul:
   prefix: /mapoh
   routes:
     # 用户微服务路径
-    template:
+    user:
       path: /ppg-user/**
       serviceId: eureka-client-ppg-user
+      strip-prefix: false
+    # 商家微服务路径
+    merchant:
+      path: /ppg-merchant/**
+      service-id: eureka-client-ppg-merchant
       strip-prefix: false
   host:
     connect-timeout-millis: 15000
@@ -31,6 +36,7 @@ ribbon:
 custom:
   server-hosts:
     ppg-user: http://localhost:7001
+
 
 logging:
   level:
