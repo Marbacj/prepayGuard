@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/contract-template.iml" filepath="$PROJECT_DIR$/contract-template.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ppg-merchant.iml" filepath="$PROJECT_DIR$/ppg-merchant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/prepayguard.iml" filepath="$PROJECT_DIR$/prepayguard.iml" />
+    </modules>
+  </component>
+</project>
