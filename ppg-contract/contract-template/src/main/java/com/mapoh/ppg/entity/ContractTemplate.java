@@ -41,4 +41,10 @@ public class ContractTemplate {
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private Timestamp createdAt;
+
+    public ContractTemplate(String name, String description, String fields) {
+        this.name = name;
+        this.description = description;
+        this.fields = fields;
+    }
 }

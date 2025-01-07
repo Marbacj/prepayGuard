@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author mabohv
  * @date 2024/12/27 12:37
  */
-@Deprecated
+
 @Component
 public class UserClientHystrix implements UserClientFeign {
 
