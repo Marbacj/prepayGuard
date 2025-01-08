@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/ppg-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ppg-contract/contract-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ppg-contract/contract-distribution/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ppg-contract/contract-template/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ppg-contract/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ppg-contract/src/main/resources" charset="UTF-8" />
