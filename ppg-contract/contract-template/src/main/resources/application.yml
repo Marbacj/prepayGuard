@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: eureka-client-ppg-contract
+    name: eureka-client-contract-template
   jpa:
     show-sql: true
     hibernate:

@@ -1,10 +1,17 @@
 CREATE TABLE IF NOT EXISTS contract_templates (
-    template_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL COMMENT '模板名称',
-    description TEXT DEFAULT NULL COMMENT '模板描述',
-    fields VARCHAR(1024) NOT NULL COMMENT '模板相关字段配置',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+      template_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT '合同模板 ID',
+      template_name VARCHAR(255) NOT NULL COMMENT '模板名称',
+      description TEXT DEFAULT NULL COMMENT '模板描述',
+      unit_amount DECIMAL(10, 2) NOT NULL COMMENT '单位金额',
+      validity_period INT NOT NULL COMMENT '有效期时长',
+      validity_unit VARCHAR(255) NOT NULL COMMENT '有效期单位',
+      activation_method VARCHAR(255) NOT NULL COMMENT '生效方式',
+      refundable BOOLEAN DEFAULT TRUE COMMENT '是否可退款',
+      refund_policy TEXT DEFAULT NULL COMMENT '退款政策',
+      terms_and_conditions TEXT DEFAULT NULL COMMENT '条款与条件',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '模板创建时间',
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '模板更新时间'
+) COMMENT '合同模板表';
 
 
 CREATE TABLE IF NOT EXISTS contracts (

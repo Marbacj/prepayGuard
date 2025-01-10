@@ -24,7 +24,7 @@ public enum ValidityUnit {
 
     private Integer code;
 
-    public static ValidityUnit getByCode(Integer code) {
+    public static ValidityUnit of(Integer code) {
         Objects.requireNonNull(code);
 
         return Stream.of(values())
