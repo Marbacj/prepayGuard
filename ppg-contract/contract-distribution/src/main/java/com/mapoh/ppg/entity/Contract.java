@@ -3,10 +3,10 @@ package com.mapoh.ppg.entity;
 import com.mapoh.ppg.constants.ContractStatus;
 import com.mapoh.ppg.constants.ActivationMethod;
 import com.mapoh.ppg.constants.ValidityUnit;
+import com.mapoh.ppg.converter.ActivationMethodConverter;
+import com.mapoh.ppg.converter.ContractStatusConverter;
 import com.mapoh.ppg.converter.ValidityUnitConverter;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.persistence.Table;
@@ -50,7 +50,7 @@ public class Contract {
     private BigDecimal totalAmount;
 
     @Column(name = "activation_method", nullable = false)
-    @Convert(converter = ActivationMethod.class)
+    @Convert(converter = ActivationMethodConverter.class)
     private ActivationMethod activationMethod;
 
     @Column(name = "activation_date")
@@ -82,7 +82,7 @@ public class Contract {
     private LocalDateTime createdAt;
 
     @Column(name = "status")
-    @Convert(converter = ContractStatus.class)
+    @Convert(converter = ContractStatusConverter.class)
     private ContractStatus status;
 
 

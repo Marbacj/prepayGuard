@@ -45,8 +45,8 @@ public class TemplateServiceImpl implements TemplateService {
         String description = request.getDescription();
         BigDecimal unitAmount = request.getUnitAmount();
         Integer validityPeriod = request.getValidityPeriod();
-        String validityUnit = request.getValidityUnit();
-        String activationMethod = request.getActivationMethod();
+        ValidityUnit validityUnit = request.getValidityUnit();
+        ActivationMethod activationMethod = request.getActivationMethod();
         Boolean refundable = request.getRefundable();
         String refundPolicy = request.getRefundPolicy();
         String termsAndConditions = request.getTermsAndConditions();
@@ -63,8 +63,8 @@ public class TemplateServiceImpl implements TemplateService {
         contractTemplate.setDescription(description);
         contractTemplate.setUnitAmount(unitAmount);
         contractTemplate.setValidityPeriod(validityPeriod);
-        contractTemplate.setValidityUnit(ValidityUnit.valueOf(validityUnit));
-        contractTemplate.setActivationMethod(ActivationMethod.valueOf(activationMethod));
+        contractTemplate.setValidityUnit(validityUnit);
+        contractTemplate.setActivationMethod(activationMethod);
         contractTemplate.setRefundable(refundable);
         contractTemplate.setRefundPolicy(refundPolicy);
         contractTemplate.setTermsAndConditions(termsAndConditions);
@@ -85,7 +85,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public ContractTemplate getTemplate(Integer templateId) {
 
-        Optional<ContractTemplate> contractTemplate = contractTemplateDao.findByTemplateId(templateId);
+        Optional<ContractTemplate> contractTemplate = contractTemplateDao.findContractTemplateByTemplateId(templateId);
         return contractTemplate.orElse(null);
     }
 

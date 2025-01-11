@@ -19,9 +19,11 @@ public interface ContractTemplateDao extends JpaRepository<ContractTemplate, Lon
 
     public boolean existsByTemplateName(String templateName);
 
-    public Optional<ContractTemplate> findByTemplateId(Integer templateId);
+    public Optional<ContractTemplate> findContractTemplateByTemplateId(Integer templateId);
 
     // 通过ID查询模板名称（推荐）
     @Query("SELECT c.templateName FROM ContractTemplate c WHERE c.templateId = :templateId")
     String findTemplateNameByTemplateId(@Param("templateId") Integer templateId);
+
+    public Optional<ContractTemplate> getContractTemplateByTemplateId(Integer contractId);
 }

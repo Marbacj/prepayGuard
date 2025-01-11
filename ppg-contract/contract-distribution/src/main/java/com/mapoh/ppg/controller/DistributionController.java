@@ -6,10 +6,7 @@ import com.mapoh.ppg.vo.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author mabohv
@@ -33,6 +30,11 @@ public class DistributionController {
 
     public DistributionController(DistributionService distributionService) {
         this.distributionService = distributionService;
+    }
+
+    @RequestMapping({"/", "/index"})
+    public String index() {
+        return "index";
     }
 
     @PostMapping("/create")

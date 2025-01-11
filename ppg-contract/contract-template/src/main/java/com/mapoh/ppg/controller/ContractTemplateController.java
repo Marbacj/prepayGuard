@@ -40,12 +40,20 @@ public class ContractTemplateController {
     }
 
     @GetMapping("/getTemplate")
-    public CommonResponse<ContractTemplate> getTemplateByName(Integer templateId) {
-        if(templateId == null) {
+    public CommonResponse<ContractTemplate> getTemplateById(@RequestParam("templateId") Integer templateId) {
+        if (templateId == null) {
             logger.error("templateId is null");
-            return CommonResponse.successResponse(null);
+            return CommonResponse.errorResponse(400, "模版不能为空", null);
         }
-        return CommonResponse.successResponse(templateService.getTemplate(templateId));
+
+        ContractTemplate template = templateService.getTemplate(templateId);
+
+        if (template == null) {
+            logger.warn("Template not found for ID: {}", templateId);
+            return CommonResponse.errorResponse(404, "未找到对应的模板", null);
+        }
+
+        return CommonResponse.successResponse(template);
     }
 
 //    @GetMapping("/getTemplateName")

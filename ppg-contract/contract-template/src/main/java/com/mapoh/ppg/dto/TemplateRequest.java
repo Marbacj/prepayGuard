@@ -36,12 +36,12 @@ public class TemplateRequest {
     /** 有效期单位 */
     @NotBlank(message = "有效期单位不能为空")
     @Pattern(regexp = "周|月|年", message = "有效期单位必须是'周', '月'或'年'")
-    private String validityUnit;
+    private ValidityUnit validityUnit;
 
     /** 生效方式 */
     @NotBlank(message = "生效方式不能为空")
     @Pattern(regexp = "首次消费生效|具体日期|最迟生效日期", message = "生效方式必须是'首次消费生效', '具体日期'或'最迟生效日期'")
-    private String activationMethod;
+    private ActivationMethod activationMethod;
 
     /** 是否可退款 */
     @NotNull(message = "是否可退款不能为空")

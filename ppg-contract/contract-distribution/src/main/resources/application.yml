@@ -1,7 +1,7 @@
 server:
-  port: 6001
+  port: 6002
   servlet:
-    context-path: /contract-distribution
+    context-path: /ppg-contract/distribution
 
 spring:
   application:
@@ -16,7 +16,7 @@ spring:
     open-in-view: false
   datasource:
     # 数据源
-    url: jdbc:mysql://127.0.0.1:3306/imooc_coupon_data?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/mapoh_ppg_data?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
     password: Mabohv123
     type: com.zaxxer.hikari.HikariDataSource
@@ -37,12 +37,12 @@ spring:
     # password:
     # 连接超时时间
     timeout: 10000
-  kafka:
-    bootstrap-servers:
-      - 127.0.0.1:9092
-    consumer:
-      group-id: imooc-coupon-x
-      auto-offset-reset: latest
+#  kafka:
+#    bootstrap-servers:
+#      - 127.0.0.1:9092
+#    consumer:
+#      group-id: imooc-coupon-x
+#      auto-offset-reset: latest
   # 开启 ribbon 重试机制, 即获取服务失败是否从另外一个节点重试
   cloud:
     loadbalancer:

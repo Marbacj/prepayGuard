@@ -8,9 +8,11 @@ import com.mapoh.ppg.entity.ContractTemplate;
 import com.mapoh.ppg.feign.ContractTemplateFeign;
 import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 
 /**
@@ -25,6 +27,9 @@ public class DistributionServiceImpl implements DistributionService {
 
     ContractDao contractDao;
 
+    public static Logger logger = LoggerFactory.getLogger(DistributionServiceImpl.class);
+
+    @Autowired
     public DistributionServiceImpl(ContractTemplateFeign contractTemplateFeign,
                                    ContractDao contractDao) {
         this.contractTemplateFeign = contractTemplateFeign;
@@ -37,44 +42,48 @@ public class DistributionServiceImpl implements DistributionService {
     public String createContract(CreateContractRequest createContractRequest) {
         String userId = createContractRequest.getUserId();
         String merchantId = createContractRequest.getMerchantId();
-        String templateId = createContractRequest.getTemplateId();
+        Integer templateId = Integer.valueOf(createContractRequest.getTemplateId());
+
+        // 参数校验
+        if (userId == null || merchantId == null) {
+            throw new IllegalArgumentException("用户ID、商户ID或模板ID不能为空");
+        }
 
         Contract contract = new Contract();
 
-        // 调用 Feign 客户端获取模板
-        CommonResponse<ContractTemplate> response = contractTemplateFeign.getContractTemplate(Integer.valueOf(templateId));
-        if (response.getData() == null) {
-            throw new RuntimeException("获取模板失败");
+        // 调用 Feign 获取模板
+        CommonResponse<ContractTemplate> response = contractTemplateFeign.getTemplateById(templateId);
+
+        if (response == null || response.getData() == null) {
+            logger.warn("the contract template {} is not exist", templateId);
+            throw new IllegalArgumentException("the contract template " + templateId + " is not exist");
         }
 
         ContractTemplate contractTemplate = response.getData();
 
-        // 通过反射将模板内容赋值给合同对象
-        Field[] fields = ContractTemplate.class.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(contractTemplate);
-                Field contractField = Contract.class.getDeclaredField(field.getName());
-                contractField.setAccessible(true);
-                contractField.set(contract, value);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
+        // 将模板内容填充到合同对象
+        fulfillTemplateToContract(contract, contractTemplate);
 
-        // 设置基本信息
+        // 设置合同基本信息
         contract.setUserId(Long.valueOf(userId));
         contract.setMerchantId(Long.valueOf(merchantId));
         contract.setTemplateId(Integer.valueOf(templateId));
         contract.setStatus(ContractStatus.READY);
         contract.setTotalUnits(createContractRequest.getTotalUnits());
         contract.setTotalAmount(createContractRequest.getTotalAmount());
-        LocalDate now = LocalDate.now();
-        contract.setActivationDate(now);
+        contract.setActivationDate(LocalDate.now());
+
         // 保存合同
         contractDao.save(contract);
 
         return "合同创建成功，合同ID：" + contract.getContractId();
+    }
+
+    private void fulfillTemplateToContract(Contract contract, ContractTemplate contractTemplate) {
+        contract.setUnitAmount(contractTemplate.getUnitAmount());
+        contract.setValidityPeriod(contractTemplate.getValidityPeriod());
+        contract.setValidityUnit(contractTemplate.getValidityUnit());
+        contract.setActivationMethod(contractTemplate.getActivationMethod());
+        contract.setRefundable(contractTemplate.getRefundable());
     }
 }
