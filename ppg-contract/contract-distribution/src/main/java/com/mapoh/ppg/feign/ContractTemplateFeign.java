@@ -7,18 +7,17 @@ package com.mapoh.ppg.feign;
  */
 
 import com.mapoh.ppg.entity.ContractTemplate;
+import com.mapoh.ppg.feign.config.FeignLogLevleConfig;
 import com.mapoh.ppg.feign.hystrix.ContractTemplateHystrix;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractTemplateResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(value = "eureka-client-contract-template",
         fallback = ContractTemplateHystrix.class)
 public interface ContractTemplateFeign {
 
-    @GetMapping(value = "/ppg-contract/template/template")
-    CommonResponse<ContractTemplate> getTemplateById(@RequestParam("templateId") Integer templateId);
+    @GetMapping("/ppg-contract/template/getTemplate/{templateId}")
+    CommonResponse<ContractTemplateResponse> getTemplateById(@PathVariable("templateId") Integer templateId);
 }

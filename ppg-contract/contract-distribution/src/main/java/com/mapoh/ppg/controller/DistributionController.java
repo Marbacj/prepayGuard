@@ -1,6 +1,7 @@
 package com.mapoh.ppg.controller;
 
 import com.mapoh.ppg.dto.CreateContractRequest;
+import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
 import org.slf4j.Logger;
@@ -45,5 +46,11 @@ public class DistributionController {
             return CommonResponse.successResponse(null);
         }
         return CommonResponse.successResponse(distributionService.createContract(createContractRequest));
+    }
+
+    @PostMapping("/sign")
+    public CommonResponse<String> signContract(@RequestBody SignContractRequest signContractRequest){
+        
+
     }
 }

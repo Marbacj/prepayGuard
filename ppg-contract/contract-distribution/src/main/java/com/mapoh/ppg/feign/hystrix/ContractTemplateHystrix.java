@@ -3,6 +3,7 @@ package com.mapoh.ppg.feign.hystrix;
 import com.mapoh.ppg.entity.ContractTemplate;
 import com.mapoh.ppg.feign.ContractTemplateFeign;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractTemplateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class ContractTemplateHystrix implements ContractTemplateFeign {
     public static Logger logger = LoggerFactory.getLogger(ContractTemplateHystrix.class);
 
     @Override
-    public CommonResponse<ContractTemplate> getTemplateById(Integer templateId) {
+    public CommonResponse<ContractTemplateResponse> getTemplateById(Integer templateId) {
         logger.error("[eureka-client-contract-template] getTemplateById" +
                 "request error");
         return new CommonResponse<>(

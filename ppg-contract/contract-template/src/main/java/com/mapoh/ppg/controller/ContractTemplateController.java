@@ -4,6 +4,7 @@ import com.mapoh.ppg.dto.TemplateRequest;
 import com.mapoh.ppg.entity.ContractTemplate;
 import com.mapoh.ppg.service.TemplateService;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractTemplateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +40,14 @@ public class ContractTemplateController {
         return CommonResponse.successResponse(templateService.buildTemplate(request));
     }
 
-    @GetMapping("/getTemplate")
-    public CommonResponse<ContractTemplate> getTemplateById(@RequestParam("templateId") Integer templateId) {
+    @GetMapping("/getTemplate/{templateId}")
+    public CommonResponse<ContractTemplateResponse> getTemplateById(@PathVariable("templateId") Integer templateId) {
         if (templateId == null) {
             logger.error("templateId is null");
             return CommonResponse.errorResponse(400, "模版不能为空", null);
         }
 
-        ContractTemplate template = templateService.getTemplate(templateId);
+        ContractTemplateResponse template = templateService.getTemplate(templateId);
 
         if (template == null) {
             logger.warn("Template not found for ID: {}", templateId);

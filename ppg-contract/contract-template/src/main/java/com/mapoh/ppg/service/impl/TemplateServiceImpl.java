@@ -6,6 +6,7 @@ import com.mapoh.ppg.dao.ContractTemplateDao;
 import com.mapoh.ppg.dto.TemplateRequest;
 import com.mapoh.ppg.entity.ContractTemplate;
 import com.mapoh.ppg.service.TemplateService;
+import com.mapoh.ppg.vo.ContractTemplateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,10 +84,16 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public ContractTemplate getTemplate(Integer templateId) {
+    public ContractTemplateResponse getTemplate(Integer templateId) {
 
         Optional<ContractTemplate> contractTemplate = contractTemplateDao.findContractTemplateByTemplateId(templateId);
-        return contractTemplate.orElse(null);
+        ContractTemplateResponse contractTemplateResponse = new ContractTemplateResponse();
+        contractTemplateResponse.setUnitAmount(contractTemplate.isPresent() ? contractTemplate.get().getUnitAmount() : BigDecimal.ZERO);
+        contractTemplateResponse.setValidityPeriod(contractTemplate.map(ContractTemplate::getValidityPeriod).orElse(null));
+        contractTemplateResponse.setValidityUnit(contractTemplate.map(ContractTemplate::getValidityUnit).orElse(null));
+        contractTemplateResponse.setActivationMethod(contractTemplate.map(ContractTemplate::getActivationMethod).orElse(null));
+        contractTemplateResponse.setRefundable(contractTemplate.map(ContractTemplate::getRefundable).orElse(null));
+        return contractTemplateResponse;
     }
 
 //    @Override

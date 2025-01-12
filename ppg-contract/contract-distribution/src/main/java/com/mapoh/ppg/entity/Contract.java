@@ -46,7 +46,7 @@ public class Contract {
     @Column(name = "total_units", nullable = false)
     private Integer totalUnits;
 
-    @Column(name = "total_amount", precision = 10, scale = 2)
+    @Column(name = "total_amount", insertable = false, updatable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
     @Column(name = "activation_method", nullable = false)
