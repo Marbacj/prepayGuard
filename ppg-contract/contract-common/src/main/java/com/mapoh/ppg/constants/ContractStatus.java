@@ -15,10 +15,12 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public enum ContractStatus {
 
-    READY("已完成",1),
-    EXCUTE("执行中",2),
-    ACCOMPLISH("已完成",3),
-    CANCELLED("已取消",4);
+    READY("待签订",1),
+    USERSIGN("用户已签署", 2),
+    MERCHANTSIGN("商家已签署", 3),
+    EXCUTE("执行中",4),
+    ACCOMPLISH("已完成",5),
+    CANCELLED("已取消",6);
 
     private String description;
 

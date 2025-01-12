@@ -28,7 +28,7 @@ public enum ActivationMethod {
         Objects.requireNonNull(code);
 
         return Stream.of(ActivationMethod.values())
-                .filter(bean -> bean.getCode().equals(code))
+                .filter(bean -> bean.code.equals(code))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Invalid activation code: " + code));
     }
