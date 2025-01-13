@@ -6,7 +6,6 @@ import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -38,6 +37,11 @@ public class DistributionController {
         return "index";
     }
 
+    /**
+     *
+     * @param createContractRequest
+     * @return
+     */
     @PostMapping("/create")
     public CommonResponse<String> createContract(@RequestBody CreateContractRequest createContractRequest){
         if(createContractRequest.getUserId() == null
@@ -48,9 +52,24 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.createContract(createContractRequest));
     }
 
+    /**
+     *
+     * @param signContractRequest
+     * @return
+     */
     @PostMapping("/sign")
+//    @GlobalTransactional(name = "contract-sign-tx", rollbackFor = Exception.class)
     public CommonResponse<String> signContract(@RequestBody SignContractRequest signContractRequest){
-        
 
+        String role = signContractRequest.getRole().toString();
+        Long contractId = signContractRequest.getContractId();
+        Long signerId = signContractRequest.getSignerId();
+
+        if(role == null || contractId == null || signerId == null){
+            logger.warn("the role and contractId is null");
+            return CommonResponse.successResponse(null);
+        }
+
+        return CommonResponse.successResponse(distributionService.signContract(signContractRequest));
     }
 }

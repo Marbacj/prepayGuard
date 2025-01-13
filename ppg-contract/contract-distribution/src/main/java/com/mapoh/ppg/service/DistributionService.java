@@ -1,6 +1,7 @@
 package com.mapoh.ppg.service;
 
 import com.mapoh.ppg.dto.CreateContractRequest;
+import com.mapoh.ppg.dto.SignContractRequest;
 
 /**
  * @author mabohv
@@ -10,4 +11,6 @@ import com.mapoh.ppg.dto.CreateContractRequest;
 public interface DistributionService {
 
     String createContract(CreateContractRequest createContractRequest);
+
+    String signContract(SignContractRequest signContractRequest);
 }
