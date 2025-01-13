@@ -1,10 +1,10 @@
 package com.mapoh.ppg.service.impl;
 
-import com.mapoh.ppg.constants.ActivationMethod;
+import com.mapoh.ppg.constants.Role;
 import com.mapoh.ppg.constants.ContractStatus;
-import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.dao.ContractDao;
 import com.mapoh.ppg.dto.CreateContractRequest;
+import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.entity.Contract;
 import com.mapoh.ppg.feign.ContractTemplateFeign;
 import com.mapoh.ppg.service.DistributionService;
@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * @author mabohv
@@ -33,6 +33,7 @@ public class DistributionServiceImpl implements DistributionService {
 
     public static Logger logger = LoggerFactory.getLogger(DistributionServiceImpl.class);
 
+    @SuppressWarnings("all")
     @Autowired
     public DistributionServiceImpl(ContractTemplateFeign contractTemplateFeign,
                                    ContractDao contractDao) {
@@ -90,6 +91,58 @@ public class DistributionServiceImpl implements DistributionService {
         contractDao.save(contract);
 
         return "合同创建成功，合同ID：" + contract.getContractId();
+    }
+
+    /**
+     *
+     *
+     * @param signContractRequest
+     * @return
+     */
+    @Transactional
+    @Override
+    public String signContract(SignContractRequest signContractRequest) {
+        String role = signContractRequest.getRole().toString();
+        Long contractId = signContractRequest.getContractId();
+        Long signerId = signContractRequest.getSignerId();
+        String result = contractDao.getStatusByContractId(contractId);
+
+        try {
+            if (Role.user.toString().equals(role)) {
+                return handleUserSigning(contractId, signerId, result);
+            } else if (Role.merchant.toString().equals(role)) {
+                return handleMerchantSigning(contractId, signerId, result);
+            } else {
+                logger.warn("Invalid role: {} for signing contract.", role);
+                return "Invalid role for signing.";
+            }
+        } catch (Exception e) {
+            logger.error("Error during signing contract: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to sign contract", e);
+        }
+    }
+
+    private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
+        if (ContractStatus.MERCHANTSIGN.toString().equals(currentStatus)) {
+            contractDao.updateContractStatusToExecute(contractId);
+            logger.info("Contract ID: {} status updated to Execute. User signed.", contractId);
+            return "The contract has been executed.";
+        }
+        logger.info("test contractStatus: {}", ContractStatus.MERCHANTSIGN.toString());
+        contractDao.updateUserSignStatus(signerId);
+        logger.info("User ID: {} signed the contract successfully.", signerId);
+        return "Contract signed successfully by User.";
+    }
+
+    private String handleMerchantSigning(Long contractId, Long signerId, String currentStatus) {
+        if (ContractStatus.USERSIGN.toString().equals(currentStatus)) {
+            contractDao.updateContractStatusToExecute(contractId);
+            logger.info("Contract ID: {} status updated to Execute. Merchant signed.", contractId);
+            return "The contract has been executed.";
+        }
+        contractDao.updateMerchantSignStatus(signerId);
+        logger.info("Merchant ID: {} signed the contract successfully.", signerId);
+        return "Contract signed successfully by Merchant.";
     }
 
     private void fulfillTemplateToContract(Contract contract, ContractTemplateResponse contractTemplate) {

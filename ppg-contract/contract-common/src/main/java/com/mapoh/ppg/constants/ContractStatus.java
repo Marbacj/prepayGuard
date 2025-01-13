@@ -18,7 +18,7 @@ public enum ContractStatus {
     READY("待签订",1),
     USERSIGN("用户已签署", 2),
     MERCHANTSIGN("商家已签署", 3),
-    EXCUTE("执行中",4),
+    EXECUTE("执行中",4),
     ACCOMPLISH("已完成",5),
     CANCELLED("已取消",6);
 
