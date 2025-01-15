@@ -13,6 +13,7 @@
         <module name="contract-common" />
         <module name="contract-distribution" />
         <module name="ppg-gateway" />
+        <module name="ppg-payment" />
         <module name="ppg-eureka" />
         <module name="contract-template" />
       </profile>
@@ -28,6 +29,7 @@
       <module name="ppg-eureka" options="-parameters" />
       <module name="ppg-gateway" options="-parameters" />
       <module name="ppg-merchant" options="-parameters" />
+      <module name="ppg-payment" options="-parameters" />
       <module name="ppg-user" options="-parameters" />
     </option>
   </component>
