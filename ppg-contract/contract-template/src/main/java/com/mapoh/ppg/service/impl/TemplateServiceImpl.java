@@ -5,6 +5,7 @@ import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.dao.ContractTemplateDao;
 import com.mapoh.ppg.dto.TemplateRequest;
 import com.mapoh.ppg.entity.ContractTemplate;
+import com.mapoh.ppg.service.RedisService;
 import com.mapoh.ppg.service.TemplateService;
 import com.mapoh.ppg.vo.ContractTemplateResponse;
 import org.slf4j.Logger;
@@ -27,11 +28,17 @@ public class TemplateServiceImpl implements TemplateService {
 
     ContractTemplateDao contractTemplateDao;
 
+    //redis
+    public RedisService redisService;
+
     public static Logger logger = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
     @Autowired
-    public TemplateServiceImpl(ContractTemplateDao contractTemplateDao) {
+    public TemplateServiceImpl(ContractTemplateDao contractTemplateDao,
+                               RedisService redisService) {
         this.contractTemplateDao = contractTemplateDao;
+        this.redisService = redisService;
+
     }
 
     @Override
@@ -79,6 +86,9 @@ public class TemplateServiceImpl implements TemplateService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        redisService.addTemplateToCache(templateName, contractTemplate);
+
         logger.info("tag={}", contractTemplateDao.existsByTemplateName(templateName));
         return "success";
     }
@@ -86,7 +96,20 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public ContractTemplateResponse getTemplate(Integer templateId) {
 
-        Optional<ContractTemplate> contractTemplate = contractTemplateDao.findContractTemplateByTemplateId(templateId);
+        String templateName = contractTemplateDao.findTemplateNameByTemplateId(templateId);
+        if(templateName == null) {
+            logger.info("error template request and templateName is null {}", templateId);
+            return null;
+        }
+        ContractTemplate template = redisService.getTemplateFromCache(templateName);
+        Optional<ContractTemplate> contractTemplate;
+        if(template != null) {
+            contractTemplate = Optional.of(template);
+        } else {
+            contractTemplate = contractTemplateDao.getContractTemplateByTemplateId(templateId);
+            redisService.addTemplateToCache(templateName, contractTemplate.get());
+        }
+
         ContractTemplateResponse contractTemplateResponse = new ContractTemplateResponse();
         contractTemplateResponse.setUnitAmount(contractTemplate.isPresent() ? contractTemplate.get().getUnitAmount() : BigDecimal.ZERO);
         contractTemplateResponse.setValidityPeriod(contractTemplate.map(ContractTemplate::getValidityPeriod).orElse(null));

@@ -12,11 +12,17 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * @author bachmar
+ * todo: add the consume function by times
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "contract_templates")
+
+
 public class ContractTemplate {
 
     /** 模板 ID */

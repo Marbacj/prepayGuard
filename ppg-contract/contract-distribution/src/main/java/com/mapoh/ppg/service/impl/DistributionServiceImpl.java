@@ -106,6 +106,7 @@ public class DistributionServiceImpl implements DistributionService {
         Long contractId = signContractRequest.getContractId();
         Long signerId = signContractRequest.getSignerId();
         String result = contractDao.getStatusByContractId(contractId);
+        logger.info("status:{} for contractId:{}", result, contractId);
 
         try {
             if (Role.user.toString().equals(role)) {

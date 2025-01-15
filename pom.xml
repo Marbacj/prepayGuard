@@ -14,6 +14,7 @@
         <module>ppg-common</module>
         <module>ppg-merchant</module>
         <module>ppg-contract</module>
+        <module>ppg-payment</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
