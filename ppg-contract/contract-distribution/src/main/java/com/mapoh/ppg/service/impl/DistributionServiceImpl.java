@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
 
@@ -121,6 +122,16 @@ public class DistributionServiceImpl implements DistributionService {
             logger.error("Error during signing contract: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to sign contract", e);
         }
+    }
+
+    /**
+     * acquire contract amount
+     * @param contractId
+     * @return
+     */
+    @Override
+    public BigDecimal getAmount(Long contractId) {
+        return contractDao.getTotalAmountByContractId(contractId);
     }
 
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {

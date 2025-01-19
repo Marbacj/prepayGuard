@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 
 /**
  * @author mabohv
@@ -54,5 +55,10 @@ public class UserServiceImpl implements UserService {
         logger.info("User update {} for ID: {}", isSuccess ? "succeeded" : "failed", id);
 
         return isSuccess;
+    }
+
+    @Override
+    public BigDecimal getUserBalance(Long userId) {
+        return userDao.getBalance(userId);
     }
 }

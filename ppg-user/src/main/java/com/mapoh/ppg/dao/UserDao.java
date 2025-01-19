@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,4 +36,7 @@ public interface UserDao extends JpaRepository<User, Long> {
                        @Param("email") String email,
                        @Param("password") String password,
                        @Param("phoneNumber") String phoneNumber);
+
+    @Query("SELECT u.balance from User  u WHERE u.balance = :balance")
+    BigDecimal getBalance(Long userId);
 }

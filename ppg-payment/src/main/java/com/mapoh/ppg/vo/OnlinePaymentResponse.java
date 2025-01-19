@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentResponse {
+public class OnlinePaymentResponse {
 
     /**
      * 订单ID（与请求保持一致）

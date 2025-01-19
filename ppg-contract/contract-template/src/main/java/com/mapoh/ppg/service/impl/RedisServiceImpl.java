@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.Duration;
 
 /**
@@ -24,14 +25,11 @@ public class RedisServiceImpl implements RedisService {
 
     public static Logger logger = LoggerFactory.getLogger(RedisServiceImpl.class);
 
-    private final StringRedisTemplate redisTemplate;
+    @Resource
+    RedisTemplate<String,JSONObject> redisTemplate;
 
     private static final String TEMPLATE_PREFIX = "contract:template:";
 
-    @Autowired
-    public RedisServiceImpl(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     /**
      * 将合同模板缓存到 Redis
