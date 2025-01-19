@@ -7,6 +7,8 @@ import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * 实现用户修改信息
  * @author mabohv
@@ -31,4 +33,9 @@ public class UserController {
         return CommonResponse.successResponse(userService.modifyUserInfo(userInfoRequest, id));
     }
 
+
+    @GetMapping("/balance")
+    public BigDecimal getBalance(Long userId) {
+        return userService.getUserBalance(userId);
+    }
 }

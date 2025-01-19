@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * @author mabohv
  * @date 2025/1/10 19:27
@@ -71,5 +73,10 @@ public class DistributionController {
         }
 
         return CommonResponse.successResponse(distributionService.signContract(signContractRequest));
+    }
+
+    @GetMapping("/amount")
+    public BigDecimal getAmount(@RequestParam Long contractId){
+        return distributionService.getAmount(contractId);
     }
 }

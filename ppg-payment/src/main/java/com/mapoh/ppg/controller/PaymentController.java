@@ -1,9 +1,13 @@
 package com.mapoh.ppg.controller;
 
+import com.mapoh.ppg.constants.Status;
+import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.PaymentRequest;
+import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.vo.CommonResponse;
-import com.mapoh.ppg.vo.PaymentResponse;
+import com.mapoh.ppg.vo.OnlinePaymentResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,8 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PaymentController {
 
-    @GetMapping("/pay")
-    public CommonResponse<PaymentResponse> process(@RequestBody PaymentRequest request) {
+    PaymentService paymentService;
 
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @PostMapping("/pay/balance")
+    public CommonResponse<Boolean> payBalance(@RequestBody BalancePaymentRequest balancePaymentRequest) {
+        Long contractId = balancePaymentRequest.getContractId();
+        Long userId = balancePaymentRequest.getUserId();
+        Status status = balancePaymentRequest.getStatus();
+
+        if(userId == null || contractId == null || status == null) {
+            return CommonResponse.successResponse(false);
+        }
+
+        return CommonResponse.successResponse(paymentService.)
     }
 }
