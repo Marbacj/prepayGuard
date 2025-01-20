@@ -24,4 +24,12 @@ public class UserServiceHystrix implements UserServiceFeign {
         logger.error("[eureka-client-ppg-user] getBalance error;{}", userId);
         return null;
     }
+
+    @Override
+    public Boolean settlement(Long userId, BigDecimal amount) {
+
+        logger.error("[eureka-client-ppg-user] settlement error;{}", userId);
+
+        return null;
+    }
 }

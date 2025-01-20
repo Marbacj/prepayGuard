@@ -38,4 +38,13 @@ public class UserController {
     public BigDecimal getBalance(Long userId) {
         return userService.getUserBalance(userId);
     }
+
+    @PostMapping("/settlement")
+    public Boolean settlement(Long userId, BigDecimal amount) {
+        if(userId == null) {
+            return Boolean.FALSE;
+        }
+
+        return userService.settlement(userId, amount);
+    }
 }

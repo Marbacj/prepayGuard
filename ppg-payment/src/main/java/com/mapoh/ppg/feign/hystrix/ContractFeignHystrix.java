@@ -25,4 +25,10 @@ public class ContractFeignHystrix implements ContractServiceFeign {
 
         return null;
     }
+
+    @Override
+    public Boolean validContract(Long contractId) {
+        logger.error("[eureka-client-ppg-client] validContract request error:{}", contractId);
+        return false;
+    }
 }

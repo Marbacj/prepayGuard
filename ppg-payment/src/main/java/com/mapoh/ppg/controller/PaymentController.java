@@ -35,6 +35,6 @@ public class PaymentController {
             return CommonResponse.successResponse(false);
         }
 
-        return CommonResponse.successResponse(paymentService.)
+        return CommonResponse.successResponse(paymentService.payInBalance(balancePaymentRequest));
     }
 }

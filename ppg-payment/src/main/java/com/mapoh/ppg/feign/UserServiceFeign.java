@@ -3,6 +3,7 @@ package com.mapoh.ppg.feign;
 import com.mapoh.ppg.feign.hystrix.UserServiceHystrix;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.math.BigDecimal;
 
@@ -18,4 +19,6 @@ public interface UserServiceFeign {
     @GetMapping("/balance")
     BigDecimal getBalance(Long userId);
 
+    @PostMapping("/settlement")
+    Boolean settlement(Long userId, BigDecimal amount);
 }

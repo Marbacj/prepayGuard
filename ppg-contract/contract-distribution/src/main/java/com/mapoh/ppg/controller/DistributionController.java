@@ -79,4 +79,14 @@ public class DistributionController {
     public BigDecimal getAmount(@RequestParam Long contractId){
         return distributionService.getAmount(contractId);
     }
+
+    @PostMapping("/validContract")
+    public Boolean validContract(@RequestParam Long contractId){
+        if(contractId == null){
+            logger.warn("the contractId is null");
+            return false;
+        }
+        return distributionService.validateContract(contractId);
+    }
+
 }

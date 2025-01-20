@@ -61,4 +61,23 @@ public class UserServiceImpl implements UserService {
     public BigDecimal getUserBalance(Long userId) {
         return userDao.getBalance(userId);
     }
+
+    @Override
+    public boolean settlement(Long userId, BigDecimal amount) {
+        BigDecimal balance = userDao.getBalance(userId);
+
+        boolean result = balance.compareTo(amount) > 0;
+
+        BigDecimal sub = balance.subtract(amount);
+
+        try {
+            if (result) {
+                userDao.modifyUserBalance(userId, sub);
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
 }
