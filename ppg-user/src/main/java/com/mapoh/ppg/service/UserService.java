@@ -14,4 +14,6 @@ public interface UserService {
     boolean modifyUserInfo(UserInfoRequest userInfoRequest, Long id);
 
     BigDecimal getUserBalance(Long userId);
+
+    boolean settlement(Long userId, BigDecimal amount);
 }

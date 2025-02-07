@@ -1,23 +1,20 @@
 package com.mapoh.ppg.dto;
 
-import com.mapoh.ppg.constants.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author mabohv
- * @date 2025/1/19 20:52
+ * @date 2025/2/5 23:02
  */
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalancePaymentRequest {
-    private Long userId;
-
+public class ContractScheduledRequest implements Serializable {
     private Long contractId;
-
-    private Status status;
-
+    private Long merchantId;
 }

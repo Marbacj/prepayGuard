@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -134,9 +135,35 @@ public class DistributionServiceImpl implements DistributionService {
         return contractDao.getTotalAmountByContractId(contractId);
     }
 
+    @Override
+    public boolean validateContract(Long contractId) {
+        try{
+            String status = contractDao.getStatusByContractId(contractId);
+            if(!Objects.equals(status, "SIGNED")){
+                logger.info("the contract status is not excepted:{}", status);
+                return false;
+            }
+            contractDao.updateContractStatusToExecute(contractId);
+            return true;
+        }catch (Exception e){
+            logger.error("error during validateContract: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public BigDecimal getUnitAmount(Long contractId) {
+        BigDecimal unitAmount = contractDao.getUnitAmountByContractId(contractId);
+        if(unitAmount == null){
+            logger.info("the unitAmount is null");
+            return null;
+        }
+        return unitAmount;
+    }
+
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
         if (ContractStatus.MERCHANTSIGN.toString().equals(currentStatus)) {
-            contractDao.updateContractStatusToExecute(contractId);
+            contractDao.updateContractStatusToSigned(contractId);
             logger.info("Contract ID: {} status updated to Execute. User signed.", contractId);
             return "The contract has been executed.";
         }
@@ -148,7 +175,7 @@ public class DistributionServiceImpl implements DistributionService {
 
     private String handleMerchantSigning(Long contractId, Long signerId, String currentStatus) {
         if (ContractStatus.USERSIGN.toString().equals(currentStatus)) {
-            contractDao.updateContractStatusToExecute(contractId);
+            contractDao.updateContractStatusToSigned(contractId);
             logger.info("Contract ID: {} status updated to Execute. Merchant signed.", contractId);
             return "The contract has been executed.";
         }
@@ -166,4 +193,5 @@ public class DistributionServiceImpl implements DistributionService {
         contract.setActivationMethod(contractTemplate.getActivationMethod());
         contract.setRefundable(contractTemplate.getRefundable());
     }
+
 }

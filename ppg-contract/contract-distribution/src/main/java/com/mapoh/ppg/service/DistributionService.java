@@ -17,4 +17,8 @@ public interface DistributionService {
     String signContract(SignContractRequest signContractRequest);
 
     BigDecimal getAmount(Long contractId);
+
+    boolean validateContract(Long contractId);
+
+    BigDecimal getUnitAmount(Long contractId);
 }

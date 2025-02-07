@@ -26,7 +26,7 @@ public class PaymentController {
     }
 
     @PostMapping("/pay/balance")
-    public CommonResponse<Boolean> payBalance(@RequestBody BalancePaymentRequest balancePaymentRequest) {
+    public CommonResponse<Boolean> payInBalance(@RequestBody BalancePaymentRequest balancePaymentRequest) {
         Long contractId = balancePaymentRequest.getContractId();
         Long userId = balancePaymentRequest.getUserId();
         Status status = balancePaymentRequest.getStatus();
@@ -35,6 +35,6 @@ public class PaymentController {
             return CommonResponse.successResponse(false);
         }
 
-        return CommonResponse.successResponse(paymentService.)
+        return CommonResponse.successResponse(paymentService.payInBalance(balancePaymentRequest));
     }
 }
