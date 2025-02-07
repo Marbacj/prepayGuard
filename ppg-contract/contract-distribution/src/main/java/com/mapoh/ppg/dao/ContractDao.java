@@ -40,4 +40,7 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
     @Modifying
     @Query("UPDATE Contract c SET c.status = 'EXECUTE' WHERE c.contractId = :contractId")
     void updateContractStatusToExecute(@Param("contractId") Long contractId);
+
+    @Query("SELECT c.unitAmount from Contract c WHERE c.contractId = :contractId")
+    BigDecimal getUnitAmountByContractId(@Param("contractId") Long contractId);
 }

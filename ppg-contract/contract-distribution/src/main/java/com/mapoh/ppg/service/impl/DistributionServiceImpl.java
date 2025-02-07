@@ -151,6 +151,16 @@ public class DistributionServiceImpl implements DistributionService {
         }
     }
 
+    @Override
+    public BigDecimal getUnitAmount(Long contractId) {
+        BigDecimal unitAmount = contractDao.getUnitAmountByContractId(contractId);
+        if(unitAmount == null){
+            logger.info("the unitAmount is null");
+            return null;
+        }
+        return unitAmount;
+    }
+
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
         if (ContractStatus.MERCHANTSIGN.toString().equals(currentStatus)) {
             contractDao.updateContractStatusToSigned(contractId);
@@ -183,4 +193,5 @@ public class DistributionServiceImpl implements DistributionService {
         contract.setActivationMethod(contractTemplate.getActivationMethod());
         contract.setRefundable(contractTemplate.getRefundable());
     }
+
 }

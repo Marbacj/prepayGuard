@@ -3,9 +3,12 @@ package com.mapoh.ppg.controller;
 import com.mapoh.ppg.dto.LoginRequest;
 import com.mapoh.ppg.dto.RegisterRequest;
 import com.mapoh.ppg.service.JwtService;
+import com.mapoh.ppg.service.MerchantService;
 import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 /**
  * @author mabohv
@@ -18,9 +21,12 @@ public class AuthController {
 
     public final JwtService jwtService;
 
+    public final MerchantService merchantService;
+
     @Autowired
-    public  AuthController(JwtService jwtService) {
+    public  AuthController(JwtService jwtService, MerchantService merchantService) {
         this.jwtService = jwtService;
+        this.merchantService = merchantService;
     }
 
     @RequestMapping({"/", "/index"})
@@ -48,5 +54,13 @@ public class AuthController {
             return CommonResponse.successResponse(true);
         }
         return CommonResponse.successResponse(false);
+    }
+
+    @PostMapping("/recvtransfer")
+    public Boolean receiveTransferAccount(Long merchantId, BigDecimal transferAmount) {
+        if(transferAmount.compareTo(BigDecimal.ZERO) == 0 || merchantId == null){
+            return Boolean.FALSE;
+        }
+        return merchantService.addAmountByTransfer(merchantId, transferAmount);
     }
 }

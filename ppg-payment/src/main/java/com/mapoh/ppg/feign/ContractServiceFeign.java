@@ -22,4 +22,8 @@ public interface ContractServiceFeign {
 
     @PostMapping("/validContract")
     public Boolean validContract(@RequestParam Long contractId);
+
+    @GetMapping("/unitamount")
+    public BigDecimal getUnitAmount(@RequestParam Long contractId);
+
 }

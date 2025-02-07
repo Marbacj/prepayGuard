@@ -89,4 +89,12 @@ public class DistributionController {
         return distributionService.validateContract(contractId);
     }
 
+    @GetMapping("/unitamount")
+    public BigDecimal getUnitAmount(@RequestParam Long contractId){
+        if(contractId == null){
+            logger.warn("the contractId is null");
+            return null;
+        }
+        return distributionService.getUnitAmount(contractId);
+    }
 }

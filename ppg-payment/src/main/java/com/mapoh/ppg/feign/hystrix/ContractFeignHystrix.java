@@ -6,6 +6,7 @@ import com.mapoh.ppg.vo.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 
@@ -30,5 +31,11 @@ public class ContractFeignHystrix implements ContractServiceFeign {
     public Boolean validContract(Long contractId) {
         logger.error("[eureka-client-ppg-client] validContract request error:{}", contractId);
         return false;
+    }
+
+    @Override
+    public BigDecimal getUnitAmount(@RequestParam Long contractId){
+        logger.warn("[eureka-client-ppg-contract]:getUnitAmount error");
+        return BigDecimal.ZERO;
     }
 }
