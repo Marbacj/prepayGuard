@@ -20,10 +20,17 @@ zuul:
       path: /ppg-user/**
       serviceId: eureka-client-ppg-user
       strip-prefix: false
+
     # 商家微服务路径
     merchant:
       path: /ppg-merchant/**
       service-id: eureka-client-ppg-merchant
+      strip-prefix: false
+
+    # 合同微服务路径
+    contract:
+      path: /ppg-contract/**
+      service-id: eureka-client-ppg-contract
       strip-prefix: false
   host:
     connect-timeout-millis: 15000
@@ -36,6 +43,20 @@ ribbon:
 custom:
   server-hosts:
     ppg-user: http://localhost:7001
+
+# feign 相关的配置
+feign:
+  hystrix:
+    enabled: true   # Hystrix 默认是关闭的
+  client:
+    config:
+      default:  # 全局的
+        connectTimeout: 2000  # 默认的连接超时时间是 10s
+        readTimeout: 5000
+      eureka-client-coupon-template:  # 单独服务的配置
+        connectTimeout: 3000  # 默认的连接超时时间是 10s
+        readTimeout: 5000
+
 
 
 logging:

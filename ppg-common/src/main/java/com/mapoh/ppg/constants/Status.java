@@ -9,6 +9,7 @@ public enum Status {
     READY,
     USERSIGN,
     MERCHANTSIGN,
+    SIGNED,
     EXECUTE,
     ACCOMPLISH,
     CANCELLED

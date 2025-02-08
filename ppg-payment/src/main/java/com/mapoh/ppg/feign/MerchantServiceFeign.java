@@ -19,6 +19,6 @@ fallback = MerchantServiceHystrix.class)
 public interface MerchantServiceFeign {
 
     @PostMapping("/recvtransfer")
-    public Boolean receiveTransferAccount(Long merchantId, BigDecimal transferAmount);
+    public Boolean receiveTransferAccount(@RequestParam Long merchantId,@RequestParam BigDecimal transferAmount);
 
 }

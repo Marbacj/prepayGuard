@@ -1,13 +1,14 @@
 package com.mapoh.ppg.controller;
 
 import com.mapoh.ppg.dto.UserInfoRequest;
-import com.mapoh.ppg.entity.User;
+import com.mapoh.ppg.dto.payment.SettlementRequest;
 import com.mapoh.ppg.service.UserService;
 import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 /**
  * 实现用户修改信息
@@ -34,17 +35,19 @@ public class UserController {
     }
 
 
-    @GetMapping("/balance")
-    public BigDecimal getBalance(Long userId) {
-        return userService.getUserBalance(userId);
+    @GetMapping("/balance/{userId}")
+    public CommonResponse<BigDecimal> getBalance(@PathVariable("userId") Long userId) {
+        return CommonResponse.successResponse(userService.getUserBalance(userId));
     }
 
     @PostMapping("/settlement")
-    public Boolean settlement(Long userId, BigDecimal amount) {
+    public CommonResponse<Boolean> settlement(@RequestBody SettlementRequest settlementRequest) {
+        Long userId = settlementRequest.getUserId();
+        BigDecimal amount = settlementRequest.getAmount();
         if(userId == null) {
-            return Boolean.FALSE;
+            return CommonResponse.successResponse(Boolean.FALSE);
         }
 
-        return userService.settlement(userId, amount);
+        return CommonResponse.successResponse(userService.settlement(userId, amount));
     }
 }

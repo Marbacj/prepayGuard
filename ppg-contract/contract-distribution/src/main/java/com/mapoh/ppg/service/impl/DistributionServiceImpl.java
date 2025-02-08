@@ -136,7 +136,7 @@ public class DistributionServiceImpl implements DistributionService {
     }
 
     @Override
-    public boolean validateContract(Long contractId) {
+    public Boolean validateContract(Long contractId) {
         try{
             String status = contractDao.getStatusByContractId(contractId);
             if(!Objects.equals(status, "SIGNED")){

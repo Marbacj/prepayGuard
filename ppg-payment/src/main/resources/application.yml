@@ -37,17 +37,24 @@ spring:
     # password:
     # 连接超时时间
     timeout: 10000
-    kafka:
-      bootstrap-servers:
-        - 127.0.0.1:9092
-      consumer:
-        group-id: imooc-coupon-x
-        auto-offset-reset: latest
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      retries: 3
+      acks: all
+      properties:
+        linger.ms: 5
+        enable.idempotence: true
+    consumer:
+      group-id: contract-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
 #   开启 ribbon 重试机制, 即获取服务失败是否从另外一个节点重试
   cloud:
     loadbalancer:
       retry:
         enabled: true
+
 
 eureka:
   client:
@@ -57,6 +64,7 @@ eureka:
 logging:
   level:
     com.mapoh.ppg: debug
+
 
 # feign 相关的配置
 feign:
@@ -70,4 +78,3 @@ feign:
       eureka-client-coupon-template:  # 单独服务的配置
         connectTimeout: 3000  # 默认的连接超时时间是 10s
         readTimeout: 5000
-

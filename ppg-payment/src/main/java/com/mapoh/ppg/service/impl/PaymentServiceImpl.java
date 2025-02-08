@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.Status;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
+import com.mapoh.ppg.dto.payment.SettlementRequest;
 import com.mapoh.ppg.feign.ContractServiceFeign;
 import com.mapoh.ppg.feign.UserServiceFeign;
 import com.mapoh.ppg.listener.ContractScheduledListener;
@@ -34,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     UserServiceFeign userServiceFeign;
 
+    @Resource
     RedisDelayedQueue redisDelayedQueue;
 
     @Resource
@@ -44,11 +46,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @SuppressWarnings("all")
     PaymentServiceImpl(ContractServiceFeign contractServiceFeign,
-                       UserServiceFeign userServiceFeign,
-                       RedisDelayedQueue redisDelayedQueue) {
+                       UserServiceFeign userServiceFeign) {
         this.contractServiceFeign = contractServiceFeign;
         this.userServiceFeign = userServiceFeign;
-        this.redisDelayedQueue = redisDelayedQueue;
     }
 
     /**
@@ -69,9 +69,9 @@ public class PaymentServiceImpl implements PaymentService {
         if(userId == null || contractId == null || status == null) {
             logger.info("It's missed excepted param");
         }
-        BigDecimal amount = contractServiceFeign.getAmount(contractId);
+        BigDecimal amount = contractServiceFeign.getAmount(contractId).getData();
 
-        BigDecimal balance = userServiceFeign.getBalance(userId);
+        BigDecimal balance = userServiceFeign.getBalance(userId).getData();
 
         if(balance.compareTo(amount) < 0) {
             logger.error("the user balance is not enough:{}", balance);
@@ -79,11 +79,22 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         try {
-            userServiceFeign.settlement(userId, amount);
-            contractServiceFeign.validContract(contractId);
+
+            userServiceFeign.settlement(new SettlementRequest(userId, amount));
+            Boolean changedResult = contractServiceFeign.validContract(contractId).getData();
+            logger.info("contract total necessary amount = {}", amount);
+            logger.info("contract change status:{}", changedResult);
+            logger.info("now the contract is valid");
             ContractScheduledRequest contractScheduledRequest = new ContractScheduledRequest();
             contractScheduledRequest.setContractId(contractId);
+            contractScheduledRequest.setMerchantId(2L);
+//            RedisDelayedQueue redisDelayedQueue = new RedisDelayedQueue();
             redisDelayedQueue.addQueue(contractScheduledRequest, 10, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
+            logger.info(" first contractScheduled 执行:{}", contractScheduledRequest.getContractId());
+            redisDelayedQueue.addQueue(contractScheduledRequest, 20, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
+            logger.info("second contractScheduled 执行:{}", contractScheduledRequest.getContractId());
+            redisDelayedQueue.addQueue(contractScheduledRequest, 30, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
+            logger.info("third contractScheduled 执行:{}", contractScheduledRequest.getContractId());
             return true;
         }catch (Exception e) {
             logger.error("change status or settlement error:{}", e.getMessage());

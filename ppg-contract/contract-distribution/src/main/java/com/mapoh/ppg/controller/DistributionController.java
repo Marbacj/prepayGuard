@@ -75,26 +75,26 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.signContract(signContractRequest));
     }
 
-    @GetMapping("/amount")
-    public BigDecimal getAmount(@RequestParam Long contractId){
-        return distributionService.getAmount(contractId);
+    @GetMapping("/amount/{contractId}")
+    public CommonResponse<BigDecimal> getAmount(@PathVariable("contractId") Long contractId){
+        return CommonResponse.successResponse(distributionService.getAmount(contractId));
     }
 
-    @PostMapping("/validContract")
-    public Boolean validContract(@RequestParam Long contractId){
+    @PostMapping("/validContract/{contractId}")
+    public CommonResponse<Boolean> validContract(@PathVariable("contractId") Long contractId){
         if(contractId == null){
             logger.warn("the contractId is null");
-            return false;
+            return CommonResponse.successResponse(Boolean.FALSE);
         }
-        return distributionService.validateContract(contractId);
+        return CommonResponse.successResponse(distributionService.validateContract(contractId));
     }
 
-    @GetMapping("/unitamount")
-    public BigDecimal getUnitAmount(@RequestParam Long contractId){
+    @GetMapping("/unitamount/{contractId}")
+    public CommonResponse<BigDecimal> getUnitAmount(@PathVariable("contractId") Long contractId){
         if(contractId == null){
             logger.warn("the contractId is null");
-            return null;
+            return CommonResponse.successResponse(BigDecimal.ZERO);
         }
-        return distributionService.getUnitAmount(contractId);
+        return CommonResponse.successResponse(distributionService.getUnitAmount(contractId));
     }
 }
