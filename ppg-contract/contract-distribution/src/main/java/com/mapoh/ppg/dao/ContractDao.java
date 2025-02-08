@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 
 /**
@@ -38,6 +39,7 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
     BigDecimal getTotalAmountByContractId(@Param("contractId") Long contractId);
 
     @Modifying
+    @Transactional
     @Query("UPDATE Contract c SET c.status = 'EXECUTE' WHERE c.contractId = :contractId")
     void updateContractStatusToExecute(@Param("contractId") Long contractId);
 

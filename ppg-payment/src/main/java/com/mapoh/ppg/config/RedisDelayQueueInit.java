@@ -19,7 +19,6 @@ import java.util.Map;
  * init delay queue Listener
  */
 
-
 @Component
 public class RedisDelayQueueInit implements ApplicationContextAware {
 

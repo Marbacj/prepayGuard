@@ -22,6 +22,8 @@ public class UserServiceImpl implements UserService {
     UserDao userDao;
 
     public Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
@@ -76,6 +78,7 @@ public class UserServiceImpl implements UserService {
             }
             return true;
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return false;
         }
 

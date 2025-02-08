@@ -57,7 +57,7 @@ public class AuthController {
     }
 
     @PostMapping("/recvtransfer")
-    public Boolean receiveTransferAccount(Long merchantId, BigDecimal transferAmount) {
+    public Boolean receiveTransferAccount(@RequestParam Long merchantId,@RequestParam BigDecimal transferAmount) {
         if(transferAmount.compareTo(BigDecimal.ZERO) == 0 || merchantId == null){
             return Boolean.FALSE;
         }

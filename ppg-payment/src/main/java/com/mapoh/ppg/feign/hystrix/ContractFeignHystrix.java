@@ -1,7 +1,6 @@
 package com.mapoh.ppg.feign.hystrix;
 
 import com.mapoh.ppg.feign.ContractServiceFeign;
-import com.mapoh.ppg.feign.UserServiceFeign;
 import com.mapoh.ppg.vo.CommonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +19,34 @@ public class ContractFeignHystrix implements ContractServiceFeign {
 
     public static Logger logger = LoggerFactory.getLogger(ContractFeignHystrix.class);
 
-    @Override
-    public BigDecimal getAmount(Long contractId) {
-        logger.error("[eureka-client-ppg-client] getAmount request error:{}", contractId);
 
-        return null;
+    @Override
+    public CommonResponse<BigDecimal> getAmount(Long contractId) {
+        logger.error("[eureka-client-ppg-contract] occurs error:{}", contractId);
+        return CommonResponse.errorResponse(
+                -1,
+                "invoke error",
+                null
+        );
     }
 
     @Override
-    public Boolean validContract(Long contractId) {
+    public CommonResponse<Boolean> validContract(Long contractId) {
         logger.error("[eureka-client-ppg-client] validContract request error:{}", contractId);
-        return false;
+        return CommonResponse.errorResponse(
+                -1,
+                " ",
+                Boolean.FALSE
+        );
     }
 
     @Override
-    public BigDecimal getUnitAmount(@RequestParam Long contractId){
+    public CommonResponse<BigDecimal> getUnitAmount(@RequestParam Long contractId){
         logger.warn("[eureka-client-ppg-contract]:getUnitAmount error");
-        return BigDecimal.ZERO;
+        return CommonResponse.errorResponse(
+                -1,
+                " ",
+                BigDecimal.ZERO
+        );
     }
 }

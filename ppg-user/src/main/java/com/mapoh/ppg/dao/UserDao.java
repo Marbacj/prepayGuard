@@ -39,13 +39,12 @@ public interface UserDao extends JpaRepository<User, Long> {
                        @Param("password") String password,
                        @Param("phoneNumber") String phoneNumber);
 
-    @Query("SELECT u.balance from User  u WHERE u.balance = :balance")
-    BigDecimal getBalance(Long userId);
+    @Query("SELECT u.balance from User  u WHERE u.id = :userId")
+    BigDecimal getBalance(@Param("userId") Long userId);
 
 
     @Modifying
     @Transactional
     @Query("UPDATE User u SET u.balance = :sub where u.id = :userId")
-    void modifyUserBalance(Long userId, BigDecimal sub);
-
+    void modifyUserBalance(@Param("userId") Long userId,@Param("sub") BigDecimal sub);
 }

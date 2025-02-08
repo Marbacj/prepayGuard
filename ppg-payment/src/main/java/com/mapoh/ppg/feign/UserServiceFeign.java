@@ -1,9 +1,10 @@
 package com.mapoh.ppg.feign;
 
+import com.mapoh.ppg.dto.payment.SettlementRequest;
 import com.mapoh.ppg.feign.hystrix.UserServiceHystrix;
+import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -16,9 +17,9 @@ import java.math.BigDecimal;
 fallback = UserServiceHystrix.class)
 public interface UserServiceFeign {
 
-    @GetMapping("/balance")
-    BigDecimal getBalance(Long userId);
+    @GetMapping("ppg-user/balance/{userId}")
+    CommonResponse<BigDecimal> getBalance(@PathVariable("userId") Long userId);
 
-    @PostMapping("/settlement")
-    Boolean settlement(Long userId, BigDecimal amount);
+    @PostMapping("ppg-user/settlement")
+    CommonResponse<Boolean> settlement(@RequestBody SettlementRequest settlementRequest) ;
 }

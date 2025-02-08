@@ -1,10 +1,9 @@
 package com.mapoh.ppg.feign;
 
 import com.mapoh.ppg.feign.hystrix.ContractFeignHystrix;
+import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -13,17 +12,16 @@ import java.math.BigDecimal;
  * @date 2025/1/19 21:38
  */
 
-@FeignClient(value = "eureka-client-ppg-contract",
+@FeignClient(value = "eureka-client-contract-distribution",
 fallback = ContractFeignHystrix.class)
 public interface ContractServiceFeign {
 
-    @GetMapping("/amount")
-    public BigDecimal getAmount(@RequestParam Long contractId);
+    @GetMapping("ppg-contract/distribution/amount/{contractId}")
+    public CommonResponse<BigDecimal> getAmount(@PathVariable("contractId") Long contractId);
 
-    @PostMapping("/validContract")
-    public Boolean validContract(@RequestParam Long contractId);
+    @PostMapping("ppg-contract/distribution/validContract/{contractId}")
+    public CommonResponse<Boolean> validContract(@PathVariable("contractId") Long contractId);
 
-    @GetMapping("/unitamount")
-    public BigDecimal getUnitAmount(@RequestParam Long contractId);
-
+    @GetMapping("ppg-contract/distribution/unitamount/{contractId}")
+    public CommonResponse<BigDecimal> getUnitAmount(@PathVariable("contractId") Long contractId);
 }

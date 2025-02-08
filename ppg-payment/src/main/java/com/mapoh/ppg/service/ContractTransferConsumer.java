@@ -40,7 +40,7 @@ public class ContractTransferConsumer {
 
         logger.info("process contract transfer record: merchantId = {}, contractId = {} ", merchantId, contractId);
 
-        BigDecimal unitAmount = contractServiceFeign.getUnitAmount(contractId);
+        BigDecimal unitAmount = contractServiceFeign.getUnitAmount(contractId).getData();
 
         if(unitAmount.compareTo(BigDecimal.ZERO) > 0) {
             logger.warn("No valid amount retrieved for contractId: {}", contractId);

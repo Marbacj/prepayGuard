@@ -4,7 +4,11 @@ import com.mapoh.ppg.config.RedisDelayedQueueListener;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * @author mabohv
@@ -14,11 +18,13 @@ import org.springframework.kafka.core.KafkaTemplate;
  *
  */
 
+@Component
 public class ContractScheduledListener implements RedisDelayedQueueListener<ContractScheduledRequest> {
 
     public static Logger logger = LoggerFactory.getLogger(ContractScheduledListener.class);
-    private static final String Topic = "contract-scheduled";
+    private static final String TOPIC = "contract-scheduled";
 
+    @Resource
     private final KafkaTemplate<String, ContractScheduledRequest> kafkaTemplate;
 
     ContractScheduledListener(KafkaTemplate<String, ContractScheduledRequest> kafkaTemplate) {
@@ -31,6 +37,6 @@ public class ContractScheduledListener implements RedisDelayedQueueListener<Cont
     @Override
     public void invoke(ContractScheduledRequest contractScheduledRequest) {
         logger.info("fulfill contract, contractId:{}, merchantId:{}", contractScheduledRequest.getContractId(), contractScheduledRequest.getMerchantId());
-        kafkaTemplate.send(Topic, contractScheduledRequest);
+        kafkaTemplate.send(TOPIC, contractScheduledRequest);
     }
 }

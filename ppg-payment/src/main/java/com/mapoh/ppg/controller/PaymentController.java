@@ -2,14 +2,11 @@ package com.mapoh.ppg.controller;
 
 import com.mapoh.ppg.constants.Status;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
-import com.mapoh.ppg.dto.PaymentRequest;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.OnlinePaymentResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author mabohv
@@ -21,6 +18,7 @@ public class PaymentController {
 
     PaymentService paymentService;
 
+    @Autowired
     public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
