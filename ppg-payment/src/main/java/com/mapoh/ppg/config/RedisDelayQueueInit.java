@@ -24,14 +24,14 @@ public class RedisDelayQueueInit implements ApplicationContextAware {
 
     public static Logger logger = LoggerFactory.getLogger(RedisDelayQueueInit.class);
 
-    @Resource
+    @Autowired
     RedissonClient redissonClient;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         Map<String, RedisDelayedQueueListener> map = applicationContext.getBeansOfType(RedisDelayedQueueListener.class);
         for(Map.Entry<String, RedisDelayedQueueListener> entry : map.entrySet()) {
-            String listenerName = entry.getKey();
+            String listenerName = entry.getValue().getClass().getName();
             startThread(listenerName, entry.getValue());
         }
     }

@@ -1,6 +1,7 @@
 package com.mapoh.ppg.service;
 
 import com.mapoh.ppg.dto.ContractScheduledRequest;
+import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.feign.ContractServiceFeign;
 import com.mapoh.ppg.feign.MerchantServiceFeign;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,7 +33,7 @@ public class ContractTransferConsumer {
         this.merchantServiceFeign = merchantServiceFeign;
     }
 
-    @KafkaListener(topics = "contract-transfer", groupId = "contract-group")
+    @KafkaListener(topics = "contract-scheduled", groupId = "contract-group")
     public void handleContractTransfer(ConsumerRecord<String, ContractScheduledRequest> record) {
         ContractScheduledRequest contractScheduledRequest = record.value();
         Long contractId = contractScheduledRequest.getContractId();
@@ -42,13 +43,13 @@ public class ContractTransferConsumer {
 
         BigDecimal unitAmount = contractServiceFeign.getUnitAmount(contractId).getData();
 
-        if(unitAmount.compareTo(BigDecimal.ZERO) > 0) {
+        if(unitAmount.compareTo(BigDecimal.ZERO) <= 0) {
             logger.warn("No valid amount retrieved for contractId: {}", contractId);
             return;
         }
         logger.info("contract:{} need to transfer every unit for amount:{}", contractId, unitAmount);
 
-        merchantServiceFeign.receiveTransferAccount(merchantId, unitAmount);
+        merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
         logger.info("contract: contractId:{} transfer success", contractId);
     }
 }

@@ -1,10 +1,13 @@
 package com.mapoh.ppg.feign;
 
+import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.feign.hystrix.MerchantServiceHystrix;
+import com.mapoh.ppg.vo.CommonResponse;
 import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
@@ -18,7 +21,7 @@ import java.math.BigDecimal;
 fallback = MerchantServiceHystrix.class)
 public interface MerchantServiceFeign {
 
-    @PostMapping("/recvtransfer")
-    public Boolean receiveTransferAccount(@RequestParam Long merchantId,@RequestParam BigDecimal transferAmount);
+    @PostMapping("ppg-merchant/recvtransfer")
+    public CommonResponse<Boolean> receiveTransferAccount(@RequestBody TransferRequest transferRequest);
 
 }

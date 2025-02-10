@@ -2,6 +2,7 @@ package com.mapoh.ppg.controller;
 
 import com.mapoh.ppg.dto.LoginRequest;
 import com.mapoh.ppg.dto.RegisterRequest;
+import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.service.JwtService;
 import com.mapoh.ppg.service.MerchantService;
 import com.mapoh.ppg.vo.CommonResponse;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
  * @date 2024/12/30 10:34
  */
 
-@RestController("merchant")
+@RestController
 @CrossOrigin
 public class AuthController {
 
@@ -57,10 +58,12 @@ public class AuthController {
     }
 
     @PostMapping("/recvtransfer")
-    public Boolean receiveTransferAccount(@RequestParam Long merchantId,@RequestParam BigDecimal transferAmount) {
+    public CommonResponse<Boolean> receiveTransferAccount(@RequestBody TransferRequest transferRequest) {
+        Long merchantId = transferRequest.getMerchantId();
+        BigDecimal transferAmount = transferRequest.getTransferAmount();
         if(transferAmount.compareTo(BigDecimal.ZERO) == 0 || merchantId == null){
-            return Boolean.FALSE;
+            return CommonResponse.successResponse(Boolean.FALSE);
         }
-        return merchantService.addAmountByTransfer(merchantId, transferAmount);
+        return CommonResponse.successResponse(merchantService.addAmountByTransfer(merchantId, transferAmount));
     }
 }
