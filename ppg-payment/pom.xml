@@ -98,11 +98,21 @@
             <artifactId>redisson-spring-data-20</artifactId>
             <version>3.16.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
             <version>2.1.6.RELEASE</version>  <!-- 适用于 Spring Boot 2.0.2 -->
+        </dependency>
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.transaction</groupId>
+            <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+            <version>1.0.1.Final</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

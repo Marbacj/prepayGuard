@@ -49,4 +49,15 @@ public class ContractFeignHystrix implements ContractServiceFeign {
                 BigDecimal.ZERO
         );
     }
+
+    @Override
+    public CommonResponse<Long> getMerchantId(Long contractId) {
+        logger.warn("[eureka-client-ppg-contract]:getUnitAmount error:{}", contractId);
+
+        return CommonResponse.errorResponse(
+                -1,
+                "",
+                null
+        );
+    }
 }

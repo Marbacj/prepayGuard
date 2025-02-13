@@ -21,4 +21,6 @@ public interface DistributionService {
     Boolean validateContract(Long contractId);
 
     BigDecimal getUnitAmount(Long contractId);
+
+    Long getMerchantId(Long contractId);
 }

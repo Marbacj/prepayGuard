@@ -2,6 +2,7 @@ package com.mapoh.ppg.service.impl;
 
 import com.mapoh.ppg.constants.Role;
 import com.mapoh.ppg.constants.ContractStatus;
+import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.dao.ContractDao;
 import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Objects;
 import java.util.Random;
 
@@ -135,19 +138,61 @@ public class DistributionServiceImpl implements DistributionService {
         return contractDao.getTotalAmountByContractId(contractId);
     }
 
+    //todo: complete the other param
     @Override
     public Boolean validateContract(Long contractId) {
-        try{
+        try {
+            // 获取合同状态
             String status = contractDao.getStatusByContractId(contractId);
-            if(!Objects.equals(status, "SIGNED")){
-                logger.info("the contract status is not excepted:{}", status);
+            if (!Objects.equals(status, "SIGNED")) {
+                logger.info("The contract status is not expected: {}", status);
                 return false;
             }
+
+            // 获取合同的有效期单位和有效期
+            ValidityUnit validityUnit = contractDao.getValidityUnitByContractId(contractId);
+            Integer validityPeriod = contractDao.getValidityPeriodByContractId(contractId);
+
+            // 获取当前时间
+            Calendar calendar = Calendar.getInstance();
+            // 当前时间戳
+            Timestamp timestamp = new Timestamp(calendar.getTimeInMillis());
+
+            // 根据有效期单位更新日期
+            switch (validityUnit) {
+                case YEAR:
+                    // 加上 validityPeriod 年
+                    calendar.add(Calendar.YEAR, validityPeriod);
+                    break;
+                case MONTH:
+                    // 加上 validityPeriod 月
+                    calendar.add(Calendar.MONTH, validityPeriod);
+                    break;
+                case WEEK:
+                    // 加上 validityPeriod 周 (假设 validityPeriod 是周数)
+                    calendar.add(Calendar.DAY_OF_MONTH, validityPeriod * 7);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported ValidityUnit: " + validityUnit);
+            }
+
+            // 获取更新后的时间戳
+            timestamp = new Timestamp(calendar.getTimeInMillis());
+
+            // 更新合同的下次转账时间
+            contractDao.updateNextTransferDate(contractId, timestamp.toLocalDateTime());
+
+            // 更新合同状态为 EXECUTE
             contractDao.updateContractStatusToExecute(contractId);
+
             return true;
-        }catch (Exception e){
-            logger.error("error during validateContract: {}", e.getMessage(), e);
-            return false;
+
+        } catch (IllegalArgumentException e) {
+            logger.error("Error while validating contract with id {}: {}", contractId, e.getMessage());
+            throw new RuntimeException("Invalid validity unit or other error", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while validating contract with id {}: {}", contractId, e.getMessage());
+            return false; // 在发生未知错误时返回 false
         }
     }
 
@@ -159,6 +204,11 @@ public class DistributionServiceImpl implements DistributionService {
             return null;
         }
         return unitAmount;
+    }
+
+    @Override
+    public Long getMerchantId(Long contractId) {
+        return contractDao.getMerchantIdByContractId(contractId);
     }
 
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {

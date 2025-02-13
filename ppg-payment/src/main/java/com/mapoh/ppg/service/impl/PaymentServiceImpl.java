@@ -59,9 +59,11 @@ public class PaymentServiceImpl implements PaymentService {
      * 将合同放入延迟队列中进行生效
      * @param balancePaymentRequest
      * @return
+     * todo: add the function that transfer scheduled and add query the merchant from contracts
      */
     @Override
     public Boolean payInBalance(BalancePaymentRequest balancePaymentRequest) {
+
         Long userId = balancePaymentRequest.getUserId();
         Long contractId = balancePaymentRequest.getContractId();
         Status status = balancePaymentRequest.getStatus();
@@ -85,9 +87,13 @@ public class PaymentServiceImpl implements PaymentService {
             logger.info("contract total necessary amount = {}", amount);
             logger.info("contract change status:{}", changedResult);
             logger.info("now the contract is valid");
+
+            Long merchantId = contractServiceFeign.getMerchantId(contractId).getData();
+
             ContractScheduledRequest contractScheduledRequest = new ContractScheduledRequest();
             contractScheduledRequest.setContractId(contractId);
-            contractScheduledRequest.setMerchantId(2L);
+            contractScheduledRequest.setMerchantId(1L);
+            contractScheduledRequest.setUserId(userId);
 //            RedisDelayedQueue redisDelayedQueue = new RedisDelayedQueue();
             redisDelayedQueue.addQueue(contractScheduledRequest, 10, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
             logger.info(" first contractScheduled 执行:{}", contractScheduledRequest.getContractId());

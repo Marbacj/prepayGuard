@@ -45,6 +45,6 @@ public interface UserDao extends JpaRepository<User, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.balance = :sub where u.id = :userId")
+    @Query("UPDATE User u SET u.balance = u.balance - :sub where u.id = :userId")
     void modifyUserBalance(@Param("userId") Long userId,@Param("sub") BigDecimal sub);
 }

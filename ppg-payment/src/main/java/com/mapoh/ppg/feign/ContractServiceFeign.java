@@ -24,4 +24,7 @@ public interface ContractServiceFeign {
 
     @GetMapping("ppg-contract/distribution/unitamount/{contractId}")
     public CommonResponse<BigDecimal> getUnitAmount(@PathVariable("contractId") Long contractId);
+
+    @GetMapping("ppg-contract/distribution/getContractId/{contractId}")
+    CommonResponse<Long> getMerchantId(@PathVariable("contractId") Long contractId);
 }

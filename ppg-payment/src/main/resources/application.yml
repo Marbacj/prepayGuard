@@ -45,10 +45,12 @@ spring:
       properties:
         linger.ms: 5
         enable.idempotence: true
+      value-serializer: com.mapoh.ppg.serializer.ContractScheduledRequestSerializer
     consumer:
       group-id: contract-group
       auto-offset-reset: earliest
       enable-auto-commit: false
+      value-deserializer: com.mapoh.ppg.serializer.ContractScheduledRequestDeserializer
 #   开启 ribbon 重试机制, 即获取服务失败是否从另外一个节点重试
   cloud:
     loadbalancer:
@@ -78,3 +80,15 @@ feign:
       eureka-client-coupon-template:  # 单独服务的配置
         connectTimeout: 3000  # 默认的连接超时时间是 10s
         readTimeout: 5000
+
+xxl:
+  job:
+    admin:
+      addresses: http://localhost:8160/xxl-job-admin  # XXL-JOB 调度中心地址
+    executor:
+      appname: my-job-executor
+      ip:  # 可以留空，自动获取
+      port: 9999  # 执行器端口
+      logpath: /Users/bachmar/Desktop/xxl-job-2.5.0/xxl-job-admin/src/main/resources  # 日志路径
+      logretentiondays: 30  # 日志保存天数
+    accessToken: default_token  # 调度中心 Token（如果配置了）

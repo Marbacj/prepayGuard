@@ -75,11 +75,21 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.signContract(signContractRequest));
     }
 
+    /**
+     * 得到合同总的价格
+     * @param contractId
+     * @return
+     */
     @GetMapping("/amount/{contractId}")
     public CommonResponse<BigDecimal> getAmount(@PathVariable("contractId") Long contractId){
         return CommonResponse.successResponse(distributionService.getAmount(contractId));
     }
 
+    /**
+     * 使合同进行生效
+     * @param contractId
+     * @return
+     */
     @PostMapping("/validContract/{contractId}")
     public CommonResponse<Boolean> validContract(@PathVariable("contractId") Long contractId){
         if(contractId == null){
@@ -89,6 +99,12 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.validateContract(contractId));
     }
 
+    /**
+     *
+     * 得到单期价格
+     * @param contractId
+     * @return
+     */
     @GetMapping("/unitamount/{contractId}")
     public CommonResponse<BigDecimal> getUnitAmount(@PathVariable("contractId") Long contractId){
         if(contractId == null){
@@ -96,5 +112,13 @@ public class DistributionController {
             return CommonResponse.successResponse(BigDecimal.ZERO);
         }
         return CommonResponse.successResponse(distributionService.getUnitAmount(contractId));
+    }
+
+    @GetMapping("ppg-contract/distribution/getContractId/{contractId}")
+    public CommonResponse<Long> getMerchantId(@PathVariable("contractId") Long contractId){
+        if(contractId == null){
+            return CommonResponse.successResponse(null);
+        }
+        return CommonResponse.successResponse(distributionService.getMerchantId(contractId));
     }
 }
