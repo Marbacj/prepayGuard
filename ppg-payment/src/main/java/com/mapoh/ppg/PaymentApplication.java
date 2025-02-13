@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @SpringBootApplication
 @EnableFeignClients
+@EnableXxlJob
 public class PaymentApplication {
     public static void main(String[] args) {
         SpringApplication.run(PaymentApplication.class, args);

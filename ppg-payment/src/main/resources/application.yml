@@ -89,6 +89,6 @@ xxl:
       appname: my-job-executor
       ip:  # 可以留空，自动获取
       port: 9999  # 执行器端口
-      logpath: /data/applogs/xxl-job/jobhandler  # 日志路径
+      logpath: /Users/bachmar/Desktop/xxl-job-2.5.0/xxl-job-admin/src/main/resources  # 日志路径
       logretentiondays: 30  # 日志保存天数
     accessToken: default_token  # 调度中心 Token（如果配置了）

@@ -1,6 +1,7 @@
 package com.mapoh.ppg.dao;
 
 import com.mapoh.ppg.constants.ContractStatus;
+import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.entity.Contract;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * @author mabohv
@@ -40,9 +43,23 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Contract c SET c.status = 'EXECUTE' WHERE c.contractId = :contractId")
+    @Query("UPDATE Contract c SET c.status = 'EXECUTE', c.paymentStatus = 'PARTIAL_PAID' WHERE c.contractId = :contractId")
     void updateContractStatusToExecute(@Param("contractId") Long contractId);
 
     @Query("SELECT c.unitAmount from Contract c WHERE c.contractId = :contractId")
     BigDecimal getUnitAmountByContractId(@Param("contractId") Long contractId);
+
+    @Query("SELECT c.validityPeriod from Contract c where c.contractId = :contractId")
+    Integer getValidityPeriodByContractId(@Param("contractId") Long contractId);
+
+    @Query("SELECT c.validityUnit from Contract c where c.contractId = :contractId")
+    ValidityUnit getValidityUnitByContractId(@Param("contractId") Long contractId);
+
+    @Modifying
+    @Transactional
+    @Query("update Contract c SET c.nextTransferDate = :timestamp where c.contractId = :contractId")
+    void updateNextTransferDate(@Param("contractId") Long contractId, @Param("timestamp") LocalDateTime timestamp);
+
+    @Query("SELECT c.merchantId from Contract c where c.contractId = :contractId")
+    Long getMerchantIdByContractId(Long contractId);
 }
