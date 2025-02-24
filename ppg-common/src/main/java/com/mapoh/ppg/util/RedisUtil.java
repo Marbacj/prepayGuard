@@ -34,4 +34,17 @@ public class RedisUtil{
     public static void del(String key) {
         redisTemplate.delete(key);
     }
+
+    public void addToBlacklist(String token){
+        redisTemplate.opsForValue().set("blacklist"+token, "true");
+    }
+    /**
+     * 判断是否在黑名单
+     * @param token
+     * @return
+     */
+    public boolean isTokenBlacklisted(String token) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
+    }
+
 }

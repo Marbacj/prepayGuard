@@ -6,8 +6,6 @@ package com.mapoh.ppg.feign;
  * contractTemplateFeign
  */
 
-import com.mapoh.ppg.entity.ContractTemplate;
-import com.mapoh.ppg.feign.config.FeignLogLevleConfig;
 import com.mapoh.ppg.feign.hystrix.ContractTemplateHystrix;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.ContractTemplateResponse;
@@ -20,4 +18,5 @@ public interface ContractTemplateFeign {
 
     @GetMapping("/ppg-contract/template/getTemplate/{templateId}")
     CommonResponse<ContractTemplateResponse> getTemplateById(@PathVariable("templateId") Integer templateId);
+
 }

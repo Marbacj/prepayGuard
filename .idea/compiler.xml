@@ -16,6 +16,8 @@
         <module name="ppg-payment" />
         <module name="ppg-eureka" />
         <module name="contract-template" />
+        <module name="ppg-admin" />
+        <module name="ppg-notification" />
       </profile>
     </annotationProcessing>
   </component>
@@ -24,11 +26,13 @@
       <module name="contract-common" options="-parameters" />
       <module name="contract-distribution" options="-parameters" />
       <module name="contract-template" options="-parameters" />
+      <module name="ppg-admin" options="-parameters" />
       <module name="ppg-common" options="-parameters" />
       <module name="ppg-contract" options="" />
       <module name="ppg-eureka" options="-parameters" />
       <module name="ppg-gateway" options="-parameters" />
       <module name="ppg-merchant" options="-parameters" />
+      <module name="ppg-notification" options="-parameters" />
       <module name="ppg-payment" options="-parameters" />
       <module name="ppg-user" options="-parameters" />
     </option>

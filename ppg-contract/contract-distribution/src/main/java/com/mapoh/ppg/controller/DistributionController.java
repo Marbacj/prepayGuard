@@ -4,6 +4,7 @@ import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -114,11 +115,19 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.getUnitAmount(contractId));
     }
 
-    @GetMapping("ppg-contract/distribution/getContractId/{contractId}")
+    @GetMapping("/getContractId/{contractId}")
     public CommonResponse<Long> getMerchantId(@PathVariable("contractId") Long contractId){
         if(contractId == null){
             return CommonResponse.successResponse(null);
         }
         return CommonResponse.successResponse(distributionService.getMerchantId(contractId));
+    }
+
+    @GetMapping("/getContractVo/{contractId}")
+    public CommonResponse<ContractVo> getContractVo(@PathVariable("contractId") Long contractId){
+        if(contractId == null){
+            return CommonResponse.successResponse(null);
+        }
+        return CommonResponse.successResponse(distributionService.getContractVoByContractId(contractId));
     }
 }

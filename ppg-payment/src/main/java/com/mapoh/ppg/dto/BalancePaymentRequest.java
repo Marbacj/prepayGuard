@@ -18,6 +18,6 @@ public class BalancePaymentRequest {
 
     private Long contractId;
 
-    private Status status;
+//    private Status status;
 
 }

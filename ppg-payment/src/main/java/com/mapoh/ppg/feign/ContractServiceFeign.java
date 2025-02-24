@@ -2,6 +2,7 @@ package com.mapoh.ppg.feign;
 
 import com.mapoh.ppg.feign.hystrix.ContractFeignHystrix;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,4 +28,7 @@ public interface ContractServiceFeign {
 
     @GetMapping("ppg-contract/distribution/getContractId/{contractId}")
     CommonResponse<Long> getMerchantId(@PathVariable("contractId") Long contractId);
+
+    @GetMapping("/getContractVo/{contractId}")
+    public CommonResponse<ContractVo> getContractVo(@PathVariable("contractId") Long contractId);
 }

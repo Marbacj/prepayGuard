@@ -3,6 +3,7 @@ package com.mapoh.ppg.controller;
 import com.mapoh.ppg.dto.LoginRequest;
 import com.mapoh.ppg.dto.RegisterRequest;
 import com.mapoh.ppg.service.JwtService;
+import com.mapoh.ppg.util.JwtUtil;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;

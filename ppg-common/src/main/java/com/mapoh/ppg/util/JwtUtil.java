@@ -8,6 +8,8 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Map;
@@ -40,5 +42,13 @@ public class JwtUtil {
         DecodedJWT jwt = verifier.verify(token);
 
         return jwt.getClaims();
+    }
+
+    public  String getUsername(String token){
+        return JWT.decode(token).getClaim("name").asString();
+    }
+
+    public  boolean isTokenExpired(String token){
+        return JWT.decode(token).getExpiresAt().before(new Date());
     }
 }

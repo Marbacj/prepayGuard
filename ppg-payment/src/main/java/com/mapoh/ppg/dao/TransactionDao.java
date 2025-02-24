@@ -41,12 +41,14 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
     }
 
     @Transactional
-    default Transaction insertOrUpdateTransactionFail(Transaction transaction) {
-        return save(transaction);
+    default void insertOrUpdateTransactionFail(Transaction transaction) {
+        save(transaction);
     }
 
     @Query("SELECT t.transactionId from Transaction t")
     List<Long> getTransactionIdsByStatus(String status);
 
     Transaction getTransactionByContractId(Long contractId);
+
+    List<Transaction> getTransactionsByStatus(Transaction.TransactionStatus transactionStatus);
 }

@@ -6,4 +6,8 @@ package com.mapoh.ppg.service.adapter;
  */
 
 public interface PaymentChannelAdapter {
+
+    public void pay(double amount);
+
+    public void pay(Long userId, Long contractId);
 }

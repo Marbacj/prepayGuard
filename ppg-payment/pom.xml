@@ -114,6 +114,17 @@
             <version>1.0.1.Final</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>
+                com.paypal.sdk
+            </groupId>
+            <artifactId>
+                paypal-server-sdk
+            </artifactId>
+            <version>
+                0.6.0
+            </version>
+        </dependency>
     </dependencies>
 
     <build>

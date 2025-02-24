@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @date 2024/12/27 12:35
  */
 
-@FeignClient(value = "eureka-client-ppg-user", fallback = UserClientHystrix.class, primary = false)
+@FeignClient(value = "eureka-client-ppg-user",
+        fallback = UserClientHystrix.class, primary = false)
 public interface UserClientFeign {
 
     @RequestMapping(value = "/ppg-user/checkJwt", method = RequestMethod.POST)

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,6 +39,10 @@ public class ContractTransferConsumer {
         this.merchantServiceFeign = merchantServiceFeign;
     }
 
+    /**
+     * 异步处理提高消费速度
+     * @param record
+     */
     @KafkaListener(topics = "contract-scheduled", groupId = "contract-group")
     public void handleContractTransfer(ConsumerRecord<String, ContractScheduledRequest> record) {
         ContractScheduledRequest contractScheduledRequest = record.value();
@@ -45,29 +50,63 @@ public class ContractTransferConsumer {
         Long merchantId = contractScheduledRequest.getMerchantId();
         Long userId = contractScheduledRequest.getUserId();
 
-        logger.info("process contract transfer record: merchantId = {}, contractId = {} ", merchantId, contractId);
+        logger.info("Processing contract transfer record: merchantId = {}, contractId = {} ", merchantId, contractId);
 
         BigDecimal unitAmount = contractServiceFeign.getUnitAmount(contractId).getData();
-
-        if(unitAmount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (unitAmount.compareTo(BigDecimal.ZERO) <= 0) {
             logger.warn("No valid amount retrieved for contractId: {}", contractId);
             return;
         }
+        logger.info("Processing transfer for contract:{} - user:{} merchant:{} unitAmount:{}",
+                contractId, userId, merchantId, unitAmount);
 
-        logger.info("contract:{} need to transfer every unit for amount:{}", contractId, unitAmount);
-        Transaction transaction = transactionDao.getTransactionByContractId(contractId);
-        transaction.setContractId(contractId);
+        Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         transaction.setMerchantId(merchantId);
+        transaction.setContractId(contractId);
+        transaction.setAmount(unitAmount);
+
+        // 异步处理
+        processTransferAsync(contractId, merchantId, unitAmount, transaction);
+
+        logger.debug("Completed processing for contract:{}", contractId);
+    }
+
+    @Async
+    public void processTransferAsync(Long contractId, Long merchantId, BigDecimal unitAmount, Transaction transaction) {
+        try {
+            logger.debug("Initiating transfer to merchant:{}, amount:{}", merchantId, unitAmount);
+            merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
+
+            transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
+            transactionDao.insertOrUpdateTransactionSuccess(transaction);
+            logger.info("Transfer SUCCESS - contract:{} merchant:{} amount:{}", contractId, merchantId, unitAmount);
+        } catch (Exception e) {
+            transaction.setStatus(Transaction.TransactionStatus.FAILED);
+            transactionDao.insertOrUpdateTransactionFail(transaction);
+            String errorMsg = String.format("Transfer FAILED - contract:%s merchant:%s amount:%s", contractId, merchantId, unitAmount);
+            logger.error(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
+        }
+    }
+
+
+    @KafkaListener(topics = "contract-scheduled-failed", groupId = "contract-group-retries")
+    public void handleContractTransferFailed(ConsumerRecord<String, Transaction> record) {
+        logger.info("the retries for compensation transaction:{}",record.value().getContractId());
+
+        Transaction transaction = record.value();
+        Long contractId = transaction.getContractId();
+        Long merchantId = transaction.getMerchantId();
+        BigDecimal unitAmount = transaction.getAmount();
         try {
             merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
             transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
             transactionDao.insertOrUpdateTransactionSuccess(transaction);
+            logger.info("the compensation transaction success:{}",record.value().getContractId());
         } catch (Exception e) {
-            transaction.setStatus(Transaction.TransactionStatus.FAILED);
-            transactionDao.insertOrUpdateTransactionFail(transaction);
             throw new RuntimeException(e);
         }
-        logger.info("contract: contractId:{} transfer success", contractId);
+
     }
 }

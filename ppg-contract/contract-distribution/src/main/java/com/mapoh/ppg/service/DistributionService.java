@@ -2,6 +2,8 @@ package com.mapoh.ppg.service;
 
 import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
+import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractVo;
 
 import java.math.BigDecimal;
 
@@ -23,4 +25,6 @@ public interface DistributionService {
     BigDecimal getUnitAmount(Long contractId);
 
     Long getMerchantId(Long contractId);
+
+    ContractVo getContractVoByContractId(Long contractId);
 }

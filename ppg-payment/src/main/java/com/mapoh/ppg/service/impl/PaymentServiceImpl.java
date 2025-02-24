@@ -4,21 +4,26 @@ import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.Status;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
+import com.mapoh.ppg.dto.RefundRequest;
 import com.mapoh.ppg.dto.payment.SettlementRequest;
 import com.mapoh.ppg.feign.ContractServiceFeign;
 import com.mapoh.ppg.feign.UserServiceFeign;
 import com.mapoh.ppg.listener.ContractScheduledListener;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.utils.RedisDelayedQueue;
+import com.mapoh.ppg.vo.ContractVo;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,7 +55,10 @@ public class PaymentServiceImpl implements PaymentService {
         this.contractServiceFeign = contractServiceFeign;
         this.userServiceFeign = userServiceFeign;
     }
+    private final static String TOPIC = "contract-refund";
 
+    @Resource
+    public KafkaTemplate<String, RefundRequest> kafkaTemplate;
     /**
      *
      * 使用余额进行支付
@@ -61,17 +69,18 @@ public class PaymentServiceImpl implements PaymentService {
      * @return
      * todo: add the function that transfer scheduled and add query the merchant from contracts
      */
+    @Transactional
     @Override
     public Boolean payInBalance(BalancePaymentRequest balancePaymentRequest) {
 
         Long userId = balancePaymentRequest.getUserId();
         Long contractId = balancePaymentRequest.getContractId();
-        Status status = balancePaymentRequest.getStatus();
 
-        if(userId == null || contractId == null || status == null) {
+        if(userId == null || contractId == null) {
             logger.info("It's missed excepted param");
         }
-        BigDecimal amount = contractServiceFeign.getAmount(contractId).getData();
+        ContractVo contract = contractServiceFeign.getContractVo(contractId).getData();
+        BigDecimal amount = contract.getTotalAmount();
 
         BigDecimal balance = userServiceFeign.getBalance(userId).getData();
 
@@ -88,23 +97,42 @@ public class PaymentServiceImpl implements PaymentService {
             logger.info("contract change status:{}", changedResult);
             logger.info("now the contract is valid");
 
-            Long merchantId = contractServiceFeign.getMerchantId(contractId).getData();
+            Long merchantId = contract.getMerchantId();
 
             ContractScheduledRequest contractScheduledRequest = new ContractScheduledRequest();
             contractScheduledRequest.setContractId(contractId);
-            contractScheduledRequest.setMerchantId(1L);
+            contractScheduledRequest.setMerchantId(merchantId);
             contractScheduledRequest.setUserId(userId);
+
+            Timestamp timestamp = contract.getUnitTime();
+            Integer validityUnit = contract.getValidityPeriod();
 //            RedisDelayedQueue redisDelayedQueue = new RedisDelayedQueue();
-            redisDelayedQueue.addQueue(contractScheduledRequest, 10, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
-            logger.info(" first contractScheduled 执行:{}", contractScheduledRequest.getContractId());
-            redisDelayedQueue.addQueue(contractScheduledRequest, 20, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
-            logger.info("second contractScheduled 执行:{}", contractScheduledRequest.getContractId());
-            redisDelayedQueue.addQueue(contractScheduledRequest, 30, TimeUnit.SECONDS, ContractScheduledListener.class.getName());
-            logger.info("third contractScheduled 执行:{}", contractScheduledRequest.getContractId());
+            for(int i = 1; i <= validityUnit; i++){
+                long delay = i * timestamp.getTime() - System.currentTimeMillis();
+                redisDelayedQueue.addQueue(contractScheduledRequest, delay, TimeUnit.MILLISECONDS, ContractScheduledListener.class.getName());
+            }
             return true;
         }catch (Exception e) {
             logger.error("change status or settlement error:{}", e.getMessage());
             return false;
         }
+    }
+
+
+    /**
+     * 审核过程需要较长时间，可以通过消息通知来告知客户退款是否通过。
+     * 后台服务在审核完退款申请后可以通过推送、邮件或短信通知用户或前端。
+     * @param refundRequest
+     * @return
+     */
+    @Override
+    public Boolean refundBalance(RefundRequest refundRequest) {
+
+        Long userId = refundRequest.getUserId();
+        Long contractId = refundRequest.getContractId();
+        String refundReason = refundRequest.getReason();
+
+        kafkaTemplate.send(TOPIC, refundRequest);
+        return true;
     }
 }
