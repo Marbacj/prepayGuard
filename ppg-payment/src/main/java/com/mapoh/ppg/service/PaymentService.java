@@ -1,6 +1,7 @@
 package com.mapoh.ppg.service;
 
 import com.mapoh.ppg.dto.BalancePaymentRequest;
+import com.mapoh.ppg.dto.RefundRequest;
 
 /**
  * @author mabohv
@@ -11,4 +12,6 @@ public interface PaymentService {
 
     Boolean payInBalance(BalancePaymentRequest balancePaymentRequest);
 
+
+    Boolean refundBalance(RefundRequest refundRequest);
 }

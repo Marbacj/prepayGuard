@@ -2,6 +2,7 @@ package com.mapoh.ppg.feign.hystrix;
 
 import com.mapoh.ppg.feign.ContractServiceFeign;
 import com.mapoh.ppg.vo.CommonResponse;
+import com.mapoh.ppg.vo.ContractVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +54,17 @@ public class ContractFeignHystrix implements ContractServiceFeign {
     @Override
     public CommonResponse<Long> getMerchantId(Long contractId) {
         logger.warn("[eureka-client-ppg-contract]:getUnitAmount error:{}", contractId);
+
+        return CommonResponse.errorResponse(
+                -1,
+                "",
+                null
+        );
+    }
+
+    @Override
+    public CommonResponse<ContractVo> getContractVo(Long contractId) {
+        logger.warn("[eureka-client-ppg-contract]:getContractVo error:{}", contractId);
 
         return CommonResponse.errorResponse(
                 -1,

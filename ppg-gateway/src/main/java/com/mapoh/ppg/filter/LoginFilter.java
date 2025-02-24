@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.WebFault;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,6 +24,7 @@ import java.util.Set;
  * @date 2024/12/26 16:40
  */
 @Component
+@WebFilter
 public class LoginFilter extends AbstractPreZuulFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginFilter.class);
@@ -44,6 +48,7 @@ public class LoginFilter extends AbstractPreZuulFilter {
     public LoginFilter(UserClientFeign userClientFeign) {
         this.userClientFeign = userClientFeign;
     }
+
 
     @Override
     protected Object cRun() {

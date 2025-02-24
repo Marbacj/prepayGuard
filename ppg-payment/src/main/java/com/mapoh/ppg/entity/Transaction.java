@@ -73,4 +73,10 @@ public class Transaction {
         this.userId = userId;
         this.status = status;
     }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.transactionDate = now;
+    }
 }

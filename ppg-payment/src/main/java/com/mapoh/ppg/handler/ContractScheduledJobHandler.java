@@ -1,11 +1,13 @@
 package com.mapoh.ppg.handler;
 
 import com.mapoh.ppg.dao.TransactionDao;
+import com.mapoh.ppg.dto.ContractScheduledRequest;
 import com.mapoh.ppg.entity.Transaction;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -22,10 +24,12 @@ import java.util.concurrent.TimeUnit;
 public class ContractScheduledJobHandler {
 
     public static final Logger logger = LoggerFactory.getLogger(ContractScheduledJobHandler.class);
+    private static final String TOPIC = "contract-scheduled-failed";
 
     @Resource
+    KafkaTemplate<String,Transaction> kafkaTemplate;
+    @Resource
     private TransactionDao transactionDao;
-
 
     @XxlJob("ContractScheduledJob")
     public void myTransferJob() throws InterruptedException {
@@ -35,7 +39,10 @@ public class ContractScheduledJobHandler {
 //            TimeUnit.SECONDS.sleep(2);
 //        }
         XxlJobHelper.log("contract scheduled job");
-        String status = Transaction.TransactionStatus.FAILED.name();
-        List<Long> TransactionIds = transactionDao.getTransactionIdsByStatus(status);
+        List<Transaction> transactions = transactionDao.getTransactionsByStatus(Transaction.TransactionStatus.FAILED);
+
+        for(Transaction transaction : transactions) {
+            kafkaTemplate.send(TOPIC, transaction);
+        }
     }
 }

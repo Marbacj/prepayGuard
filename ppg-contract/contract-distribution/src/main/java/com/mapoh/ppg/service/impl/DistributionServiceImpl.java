@@ -6,11 +6,13 @@ import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.dao.ContractDao;
 import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
+import com.mapoh.ppg.dto.NotificationRequest;
 import com.mapoh.ppg.entity.Contract;
 import com.mapoh.ppg.feign.ContractTemplateFeign;
 import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.ContractTemplateResponse;
+import com.mapoh.ppg.vo.ContractVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +96,7 @@ public class DistributionServiceImpl implements DistributionService {
         contract.setContractCode(contractCode);
         // 保存合同
         contractDao.save(contract);
+        NotificationRequest notificationRequest = new NotificationRequest();
 
         return "合同创建成功，合同ID：" + contract.getContractId();
     }
@@ -138,6 +141,11 @@ public class DistributionServiceImpl implements DistributionService {
         return contractDao.getTotalAmountByContractId(contractId);
     }
 
+    /**
+     * 使合同生效
+     * @param contractId
+     * @return
+     */
     //todo: complete the other param
     @Override
     public Boolean validateContract(Long contractId) {
@@ -153,32 +161,7 @@ public class DistributionServiceImpl implements DistributionService {
             ValidityUnit validityUnit = contractDao.getValidityUnitByContractId(contractId);
             Integer validityPeriod = contractDao.getValidityPeriodByContractId(contractId);
 
-            // 获取当前时间
-            Calendar calendar = Calendar.getInstance();
-            // 当前时间戳
-            Timestamp timestamp = new Timestamp(calendar.getTimeInMillis());
-
-            // 根据有效期单位更新日期
-            switch (validityUnit) {
-                case YEAR:
-                    // 加上 validityPeriod 年
-                    calendar.add(Calendar.YEAR, validityPeriod);
-                    break;
-                case MONTH:
-                    // 加上 validityPeriod 月
-                    calendar.add(Calendar.MONTH, validityPeriod);
-                    break;
-                case WEEK:
-                    // 加上 validityPeriod 周 (假设 validityPeriod 是周数)
-                    calendar.add(Calendar.DAY_OF_MONTH, validityPeriod * 7);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported ValidityUnit: " + validityUnit);
-            }
-
-            // 获取更新后的时间戳
-            timestamp = new Timestamp(calendar.getTimeInMillis());
-
+            Timestamp timestamp = transferUnitToTimestamp(validityUnit, validityPeriod);
             // 更新合同的下次转账时间
             contractDao.updateNextTransferDate(contractId, timestamp.toLocalDateTime());
 
@@ -209,6 +192,17 @@ public class DistributionServiceImpl implements DistributionService {
     @Override
     public Long getMerchantId(Long contractId) {
         return contractDao.getMerchantIdByContractId(contractId);
+    }
+
+    @Override
+    public ContractVo getContractVoByContractId(Long contractId) {
+        ValidityUnit validityUnit = contractDao.getValidityUnitByContractId(contractId);
+        Timestamp unitTime = transferUnitToTimestamp(validityUnit, 1);
+        ContractVo contractVo = contractDao.getContractVoByContractId(contractId);
+        Integer validityPeriod = contractDao.getValidityPeriodByContractId(contractId);
+        contractVo.setUnitTime(unitTime);
+        contractVo.setValidityPeriod(validityPeriod);
+        return contractVo;
     }
 
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
@@ -244,4 +238,39 @@ public class DistributionServiceImpl implements DistributionService {
         contract.setRefundable(contractTemplate.getRefundable());
     }
 
+    /**
+     *
+     * @param validityUnit
+     * @param validityPeriod
+     * @return
+     */
+    private Timestamp transferUnitToTimestamp(ValidityUnit validityUnit, Integer validityPeriod) {
+
+        // 获取当前时间
+        Calendar calendar = Calendar.getInstance();
+        // 当前时间戳
+        Timestamp timestamp = new Timestamp(calendar.getTimeInMillis());
+
+        // 根据有效期单位更新日期
+        switch (validityUnit) {
+            case YEAR:
+                // 加上 validityPeriod 年
+                calendar.add(Calendar.YEAR, validityPeriod);
+                break;
+            case MONTH:
+                // 加上 validityPeriod 月
+                calendar.add(Calendar.MONTH, validityPeriod);
+                break;
+            case WEEK:
+                // 加上 validityPeriod 周 (假设 validityPeriod 是周数)
+                calendar.add(Calendar.DAY_OF_MONTH, validityPeriod * 7);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported ValidityUnit: " + validityUnit);
+        }
+
+        // 获取更新后的时间戳
+        timestamp = new Timestamp(calendar.getTimeInMillis());
+        return timestamp;
+    }
 }

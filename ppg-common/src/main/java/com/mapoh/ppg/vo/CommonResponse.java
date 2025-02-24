@@ -39,6 +39,13 @@ public class CommonResponse<T> implements Serializable {
         return new CommonResponse<T>(200, "success", data);
 
     }
+
+    public static <T> CommonResponse<T> successResponse() {
+
+        return new CommonResponse<T>(200, "success", null);
+
+    }
+
     public static <T> CommonResponse<T> errorResponse(Integer code, String message, T data) {
         return new CommonResponse<T>(code, message, data);
     }

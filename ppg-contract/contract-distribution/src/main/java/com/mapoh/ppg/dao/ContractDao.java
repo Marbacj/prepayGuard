@@ -3,6 +3,7 @@ package com.mapoh.ppg.dao;
 import com.mapoh.ppg.constants.ContractStatus;
 import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.entity.Contract;
+import com.mapoh.ppg.vo.ContractVo;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -62,4 +63,11 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
 
     @Query("SELECT c.merchantId from Contract c where c.contractId = :contractId")
     Long getMerchantIdByContractId(Long contractId);
+
+    @Query("SELECT c.userId, " +
+            "c.merchantId," +
+            "c.unitAmount," +
+            "c.totalAmount," +
+            "c.totalUnits from Contract c where c.contractId = :contractId")
+    public ContractVo getContractVoByContractId(@Param("contractId") Long contractId);
 }
