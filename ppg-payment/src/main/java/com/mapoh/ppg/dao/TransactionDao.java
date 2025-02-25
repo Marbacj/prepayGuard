@@ -2,6 +2,7 @@ package com.mapoh.ppg.dao;
 
 import com.mapoh.ppg.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -51,4 +52,8 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
     Transaction getTransactionByContractId(Long contractId);
 
     List<Transaction> getTransactionsByStatus(Transaction.TransactionStatus transactionStatus);
+
+    @Modifying
+    @Query("UPDATE Transaction t set t.retryCount = t.retryCount + 1")
+    void updateRetryCount(Transaction transaction);
 }

@@ -12,7 +12,6 @@ import com.mapoh.ppg.listener.ContractScheduledListener;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.utils.RedisDelayedQueue;
 import com.mapoh.ppg.vo.ContractVo;
-import io.seata.spring.annotation.GlobalTransactional;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,6 @@ public class PaymentServiceImpl implements PaymentService {
      * @return
      * todo: add the function that transfer scheduled and add query the merchant from contracts
      */
-    @GlobalTransactional(name = "payment_transaction", rollbackFor = Exception.class)
     @Override
     public Boolean payInBalance(BalancePaymentRequest balancePaymentRequest) {
 

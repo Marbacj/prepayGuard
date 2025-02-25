@@ -49,15 +49,15 @@ public class PaymentController {
     private final static Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     PaymentService paymentService;
-    private final PaypalServerSDKClient paypalClient;
+//    private final PaypalServerSDKClient paypalClient;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public PaymentController(PaymentService paymentService,
-                             PaypalServerSDKClient paypalClient,
+//                             PaypalServerSDKClient paypalClient,
                              ObjectMapper objectMapper) {
         this.paymentService = paymentService;
-        this.paypalClient = paypalClient;
+//        this.paypalClient = paypalClient;
         this.objectMapper = objectMapper;
     }
 
@@ -107,68 +107,68 @@ public class PaymentController {
      * @param request
      * @return
      */
-    @PostMapping("/api/orders")
-    public CommonResponse<Order> createOrder(@RequestBody JSONObject request) throws IOException, ApiException {
-        // 获取合同ID（如果有需要）
-        Long contractId = request.getLong("contractId");
-        // 获取金额
-        BigDecimal amount = request.getBigDecimal("amount");
-
-        // 调用创建订单的业务方法
-        Order order = createOrder(amount);
-//        PayContextStrategy payContextStrategy = new PayContextStrategy();
-//        boolean success = payContextStrategy.pay("10001", amount);
-//        if(success) {
-//            logger.info("payment of {} was successful");
+//    @PostMapping("/api/orders")
+//    public CommonResponse<Order> createOrder(@RequestBody JSONObject request) throws IOException, ApiException {
+//        // 获取合同ID（如果有需要）
+//        Long contractId = request.getLong("contractId");
+//        // 获取金额
+//        BigDecimal amount = request.getBigDecimal("amount");
+//
+//        // 调用创建订单的业务方法
+//        Order order = createOrder(amount);
+////        PayContextStrategy payContextStrategy = new PayContextStrategy();
+////        boolean success = payContextStrategy.pay("10001", amount);
+////        if(success) {
+////            logger.info("payment of {} was successful");
+////        }
+//
+//        // 返回订单信息
+//        return CommonResponse.successResponse(order);
+//    }
+//
+//    public Order createOrder(BigDecimal amount) throws IOException, ApiException {
+//        // 构造订单创建请求
+//        OrdersCreateInput ordersCreateInput = new OrdersCreateInput.Builder(
+//                null,
+//                new OrderRequest.Builder(
+//                        CheckoutPaymentIntent.CAPTURE,
+//                        Arrays.asList(
+//                                new PurchaseUnitRequest.Builder(
+//                                        new AmountWithBreakdown.Builder(
+//                                                "USD",
+//                                                amount.toString())
+//                                                .build())
+//                                        .build()))
+//                        .build())
+//                .build();
+//
+//        // 调用 PayPal 的 API 创建订单
+//        OrdersController ordersController = paypalClient.getOrdersController();
+//        ApiResponse<Order> apiResponse = ordersController.ordersCreate(ordersCreateInput);
+//
+//        // 返回创建的订单
+//        return apiResponse.getResult();
+//    }
+//
+//
+//    @PostMapping("/api/orders/{orderID}/capture")
+//    public ResponseEntity<Order> captureOrder(@PathVariable String orderID) {
+//        try {
+//            Order response = captureOrders(orderID);
+//            return new ResponseEntity<Order>(response, HttpStatus.OK);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
-
-        // 返回订单信息
-        return CommonResponse.successResponse(order);
-    }
-
-    public Order createOrder(BigDecimal amount) throws IOException, ApiException {
-        // 构造订单创建请求
-        OrdersCreateInput ordersCreateInput = new OrdersCreateInput.Builder(
-                null,
-                new OrderRequest.Builder(
-                        CheckoutPaymentIntent.CAPTURE,
-                        Arrays.asList(
-                                new PurchaseUnitRequest.Builder(
-                                        new AmountWithBreakdown.Builder(
-                                                "USD",
-                                                amount.toString())
-                                                .build())
-                                        .build()))
-                        .build())
-                .build();
-
-        // 调用 PayPal 的 API 创建订单
-        OrdersController ordersController = paypalClient.getOrdersController();
-        ApiResponse<Order> apiResponse = ordersController.ordersCreate(ordersCreateInput);
-
-        // 返回创建的订单
-        return apiResponse.getResult();
-    }
-
-
-    @PostMapping("/api/orders/{orderID}/capture")
-    public ResponseEntity<Order> captureOrder(@PathVariable String orderID) {
-        try {
-            Order response = captureOrders(orderID);
-            return new ResponseEntity<Order>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private Order captureOrders(String orderID) throws IOException, ApiException {
-        OrdersCaptureInput ordersCaptureInput = new OrdersCaptureInput.Builder(
-                orderID,
-                null)
-                .build();
-        OrdersController ordersController = paypalClient.getOrdersController();
-        ApiResponse<Order> apiResponse = ordersController.ordersCapture(ordersCaptureInput);
-        return apiResponse.getResult();
-    }
+//    }
+//
+//    private Order captureOrders(String orderID) throws IOException, ApiException {
+//        OrdersCaptureInput ordersCaptureInput = new OrdersCaptureInput.Builder(
+//                orderID,
+//                null)
+//                .build();
+//        OrdersController ordersController = paypalClient.getOrdersController();
+//        ApiResponse<Order> apiResponse = ordersController.ordersCapture(ordersCaptureInput);
+//        return apiResponse.getResult();
+//    }
 }
