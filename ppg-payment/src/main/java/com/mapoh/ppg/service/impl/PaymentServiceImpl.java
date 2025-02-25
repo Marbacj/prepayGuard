@@ -12,6 +12,7 @@ import com.mapoh.ppg.listener.ContractScheduledListener;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.utils.RedisDelayedQueue;
 import com.mapoh.ppg.vo.ContractVo;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,11 +66,13 @@ public class PaymentServiceImpl implements PaymentService {
      * 先进行扣除用户余额
      * 其次进行修改合同状态
      * 将合同放入延迟队列中进行生效
+     *
+     * problem: add the
      * @param balancePaymentRequest
      * @return
      * todo: add the function that transfer scheduled and add query the merchant from contracts
      */
-    @Transactional
+    @GlobalTransactional(name = "payment_transaction", rollbackFor = Exception.class)
     @Override
     public Boolean payInBalance(BalancePaymentRequest balancePaymentRequest) {
 
@@ -134,5 +137,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         kafkaTemplate.send(TOPIC, refundRequest);
         return true;
+    }
+
+    @Override
+    public BigDecimal getTotalFee(Long contractId) {
+        return contractServiceFeign.getAmount(contractId).getData();
     }
 }

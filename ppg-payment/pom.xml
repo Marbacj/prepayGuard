@@ -115,15 +115,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>
-                com.paypal.sdk
-            </groupId>
-            <artifactId>
-                paypal-server-sdk
-            </artifactId>
-            <version>
-                0.6.0
-            </version>
+            <groupId>com.paypal.sdk</groupId>
+            <artifactId>paypal-server-sdk</artifactId>
+            <version>0.5.1</version> <!-- 使用最新版本 -->
         </dependency>
     </dependencies>
 
