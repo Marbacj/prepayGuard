@@ -1,5 +1,7 @@
 package com.mapoh.ppg.service;
 
+import javassist.NotFoundException;
+
 import java.math.BigDecimal;
 
 /**
@@ -10,4 +12,6 @@ import java.math.BigDecimal;
 public interface MerchantService {
 
     Boolean addAmountByTransfer(Long merchantId, BigDecimal transferAmount);
+
+    Boolean transferWithRetry(Long merchantId, BigDecimal transferAmount) throws InterruptedException, NotFoundException;
 }

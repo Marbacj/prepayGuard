@@ -86,25 +86,28 @@ public class ContractTransferConsumer {
         transaction.setContractId(contractId);
         transaction.setAmount(unitAmount);
 
-        RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);
 
-        try{
-            merchantLock.lock(3, TimeUnit.SECONDS);
-            // 异步处理
-            processTransferAsync(contractId, merchantId, unitAmount, transaction);
-        }finally {
-            merchantLock.unlock();
-        }
+        processTransferAsync(contractId, merchantId, unitAmount, transaction);
+
 
 
         logger.debug("Completed processing for contract:{}", contractId);
     }
 
+    // 使用看门狗自动续期（默认30秒，无需显式设置时间）
     @Async
     public void processTransferAsync(Long contractId, Long merchantId, BigDecimal unitAmount, Transaction transaction) {
         try {
+            RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);
+            try{
+                merchantLock.lock(3, TimeUnit.SECONDS);
+                // 异步处理
+                merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
+            }finally {
+                merchantLock.unlock();
+            }
             logger.debug("Initiating transfer to merchant:{}, amount:{}", merchantId, unitAmount);
-            merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
+
 
             transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
             transactionDao.insertOrUpdateTransactionSuccess(transaction);
@@ -145,6 +148,15 @@ public class ContractTransferConsumer {
         logger.info("Retrying transaction for contract: {}", contractId);
 
         try {
+            RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);
+            try{
+                merchantLock.lock();
+                if (transaction.getRetryCount() < MAX_RETRY_COUNT) {
+                    processTransferAsync(contractId, merchantId, unitAmount, transaction);
+                }
+            } finally {
+                merchantLock.unlock();
+            }
             // 尝试再次进行转账
             merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
 
@@ -152,9 +164,20 @@ public class ContractTransferConsumer {
             transactionDao.insertOrUpdateTransactionSuccess(transaction);
             logger.info("Retry SUCCESS for contract:{} merchant:{} amount:{}", contractId, merchantId, unitAmount);
         } catch (Exception e) {
+            //退避策略增强
             logger.error("Retry failed for contract:{} merchant:{}, scheduling another retry", contractId, merchantId, e);
             // 将消息再次推送到重试队列，增加延迟（可以增加延迟时间）
-            kafkaTemplate.send("contract-scheduled-retries", transaction);
+            // 在重试发送时添加延时
+            kafkaTemplate.send(
+                    "contract-scheduled-retries",
+                    null,
+                    System.currentTimeMillis(),
+                    null,
+                    transaction
+            ).addCallback(
+                    result -> {},
+                    ex -> logger.error("Retry send failed", ex)
+            );
         }
     }
 

@@ -26,4 +26,10 @@ public interface MerchantDao extends JpaRepository<Merchant, Long> {
     @Transactional
     @Query("update Merchant m set m.amount = m.amount + :transferAmount where m.id = :merchantId")
     void updateMerchantAmountById(@Param("merchantId")Long merchantId, @Param("transferAmount")BigDecimal transferAmount);
+
+    @Modifying
+    @Query("UPDATE Merchant m set m.amount  = m.amount+ :delta, m.version = m.version + 1 where m.id = :merchantId AND m.version = :expectedVersion")
+    int casUpdateBalance(@Param("merchantId") Long merchantId,@Param("delta") BigDecimal delta,@Param("expectedVersion") int expectedVersion);
+
+    Merchant findMerchantById(Long id);
 }
