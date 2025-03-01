@@ -61,6 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Resource
     public KafkaTemplate<String, RefundRequest> kafkaTemplate;
+
     /**
      *
      * 使用余额进行支付

@@ -20,7 +20,7 @@ public class HotSpotAccountListener {
     private RedisTemplate<String, Long> redisTemplate;
 
     private static final String HOTSPOT_KEY_PREFIX = "hotspot:merchant";
-    private static final int FREQUENCY_THRSHHOLD = 50;
+    private static final int FREQUENCY_THRSHHOLD = 10;
     private static final int WINDOW_SECONDS = 60;
 
     public boolean isHotSpot(Long merchant){

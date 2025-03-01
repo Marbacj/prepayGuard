@@ -209,6 +209,7 @@ public class ContractTransferConsumer {
         }
     }
 
+
     // 死信队列消费
     @KafkaListener(topics = "contract-scheduled-dlq", groupId = "contract-group-dlq")
     public void handleDeadLetterTransaction(ConsumerRecord<String, Transaction> record) {

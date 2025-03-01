@@ -19,5 +19,5 @@ public interface PaymentService {
 
     BigDecimal getTotalFee(Long contractId);
 
-    public Boolean isProccessed(Long transactionId);
+    Boolean isProccessed(Long transactionId);
 }
