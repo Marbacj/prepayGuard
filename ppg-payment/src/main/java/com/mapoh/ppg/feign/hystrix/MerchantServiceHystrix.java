@@ -1,5 +1,6 @@
 package com.mapoh.ppg.feign.hystrix;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.feign.MerchantServiceFeign;
 import com.mapoh.ppg.vo.CommonResponse;
@@ -26,4 +27,13 @@ public class MerchantServiceHystrix implements MerchantServiceFeign {
                 Boolean.FALSE
         );
     }
+
+    @Override
+    public CommonResponse<Boolean> updateBalanceWithCAS(JSONObject transferRequest) {
+
+        return new CommonResponse<>(-1,
+                "",
+                Boolean.FALSE);
+    }
+
 }

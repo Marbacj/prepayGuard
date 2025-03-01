@@ -2,6 +2,7 @@ package com.mapoh.ppg.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.Status;
+import com.mapoh.ppg.dao.TransactionDao;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
 import com.mapoh.ppg.dto.RefundRequest;
@@ -24,6 +25,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,8 +48,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Resource
     public RedisTemplate<String, JSONObject> redisTemplate;
 
-    @Resource
-    public RedissonClient redissonClient;
+    @Autowired
+    private TransactionDao transactionDao;
 
     @SuppressWarnings("all")
     PaymentServiceImpl(ContractServiceFeign contractServiceFeign,
@@ -89,7 +91,6 @@ public class PaymentServiceImpl implements PaymentService {
             logger.error("the user balance is not enough:{}", balance);
             return false;
         }
-
         try {
 
             userServiceFeign.settlement(new SettlementRequest(userId, amount));
@@ -135,6 +136,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         kafkaTemplate.send(TOPIC, refundRequest);
         return true;
+    }
+
+    @Override
+    public Boolean isProccessed(Long transactionId){
+        return transactionDao.checkStatusByTransactionId(transactionId);
     }
 
     @Override

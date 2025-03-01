@@ -37,6 +37,8 @@ public class RedisDelayQueueInit implements ApplicationContextAware {
     }
 
 
+    //持有当前“就绪”的数据（延迟已过的数据）。
+    //延时队列记录了“所有待处理的数据及其超时时间”，并在适当时候将数据转移到阻塞队列。
     private <T> void startThread(String listenerName, RedisDelayedQueueListener taskEventListenerEntry) {
         RBlockingQueue<T> queue = redissonClient.getBlockingQueue(listenerName);
         Thread thread = new Thread(() -> {

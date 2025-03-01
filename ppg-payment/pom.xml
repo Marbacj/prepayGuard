@@ -34,6 +34,11 @@
             <version>9.0.0</version>
             <scope>runtime</scope>
         </dependency>
+        <!--  引入 redis 的依赖  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <!--  apache 提供的一些工具类  -->
         <dependency>
             <groupId>commons-codec</groupId>

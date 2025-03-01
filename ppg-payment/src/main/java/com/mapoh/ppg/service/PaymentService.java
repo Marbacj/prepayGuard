@@ -18,4 +18,6 @@ public interface PaymentService {
     Boolean refundBalance(RefundRequest refundRequest);
 
     BigDecimal getTotalFee(Long contractId);
+
+    public Boolean isProccessed(Long transactionId);
 }

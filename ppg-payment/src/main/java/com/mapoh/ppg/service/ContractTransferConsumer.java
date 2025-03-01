@@ -1,11 +1,13 @@
 package com.mapoh.ppg.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dao.TransactionDao;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
 import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.entity.Transaction;
 import com.mapoh.ppg.feign.ContractServiceFeign;
 import com.mapoh.ppg.feign.MerchantServiceFeign;
+import com.mapoh.ppg.listener.HotSpotAccountListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -43,11 +45,15 @@ public class ContractTransferConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ContractTransferConsumer.class);
 
-    private static final int MAX_RETRY_COUNT = 3;  // 最大重试次数
-    private static final long RETRY_INTERVAL = 5000;  // 重试间隔，单位：毫秒
+    // 最大重试次数
+    private static final int MAX_RETRY_COUNT = 3;
+    // 重试间隔，单位：毫秒
+    private static final long RETRY_INTERVAL = 5000;
 
     public ContractServiceFeign contractServiceFeign;
     public MerchantServiceFeign merchantServiceFeign;
+    public PaymentService paymentService;
+    public HotSpotAccountListener hotSpotAccountListener;
 
     @Resource
     public TransactionDao transactionDao;
@@ -58,9 +64,14 @@ public class ContractTransferConsumer {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @SuppressWarnings("all")
-    public ContractTransferConsumer(ContractServiceFeign contractServiceFeign, MerchantServiceFeign merchantServiceFeign) {
+    public ContractTransferConsumer(ContractServiceFeign contractServiceFeign,
+                                    MerchantServiceFeign merchantServiceFeign,
+                                    PaymentService paymentService,
+                                    HotSpotAccountListener hotSpotAccountListener) {
         this.contractServiceFeign = contractServiceFeign;
         this.merchantServiceFeign = merchantServiceFeign;
+        this.paymentService = paymentService;
+        this.hotSpotAccountListener = hotSpotAccountListener;
     }
 
     @KafkaListener(topics = "contract-scheduled", groupId = "contract-group")
@@ -69,6 +80,8 @@ public class ContractTransferConsumer {
         Long contractId = contractScheduledRequest.getContractId();
         Long merchantId = contractScheduledRequest.getMerchantId();
         Long userId = contractScheduledRequest.getUserId();
+
+
 
         logger.info("Processing contract transfer record: merchantId = {}, contractId = {} ", merchantId, contractId);
 
@@ -89,55 +102,63 @@ public class ContractTransferConsumer {
 
         processTransferAsync(contractId, merchantId, unitAmount, transaction);
 
-
-
         logger.debug("Completed processing for contract:{}", contractId);
     }
 
+    //使用线程池拉高消费速率
     // 使用看门狗自动续期（默认30秒，无需显式设置时间）
     @Async
     public void processTransferAsync(Long contractId, Long merchantId, BigDecimal unitAmount, Transaction transaction) {
-        try {
-            RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);
-            try{
-                merchantLock.lock(3, TimeUnit.SECONDS);
-                // 异步处理
-                merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
-            }finally {
-                merchantLock.unlock();
+        if(hotSpotAccountListener.isHotSpot(merchantId)) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("contractId", merchantId);
+            jsonObject.put("unitAmount", unitAmount);
+            merchantServiceFeign.updateBalanceWithCAS(jsonObject);
+        } else {
+            try {
+                RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);
+                try{
+                    merchantLock.lock();
+                    // 异步处理
+                    merchantServiceFeign.receiveTransferAccount(new TransferRequest(merchantId, unitAmount));
+                }finally {
+                    merchantLock.unlock();
+                }
+                logger.debug("Initiating transfer to merchant:{}, amount:{}", merchantId, unitAmount);
+
+
+                transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
+                transactionDao.insertOrUpdateTransactionSuccess(transaction);
+                logger.info("Transfer SUCCESS - contract:{} merchant:{} amount:{}", contractId, merchantId, unitAmount);
+            } catch (Exception e) {
+                transaction.setStatus(Transaction.TransactionStatus.FAILED);
+                transactionDao.insertOrUpdateTransactionFail(transaction);
+                String errorMsg = String.format("Transfer FAILED - contract:%s merchant:%s amount:%s", contractId, merchantId, unitAmount);
+                logger.error(errorMsg, e);
+
+                // 判断是否需要进入重试队列或死信队列
+                if (transaction.getRetryCount() < MAX_RETRY_COUNT) {
+                    logger.info("Retrying transaction for contract:{} merchant:{} attempt:{}", contractId, merchantId, transaction.getRetryCount() + 1);
+                    // 增加重试次数
+                    transaction.setRetryCount(transaction.getRetryCount() + 1);
+                    transactionDao.updateRetryCount(transaction);
+
+                    // 将消息推送到重试队列
+                    kafkaTemplate.send("contract-scheduled-retries", transaction);
+                } else {
+                    logger.error("Max retry attempts reached for contract:{} merchant:{}, sending to dead letter queue", contractId, merchantId);
+                    // 将消息推送到死信队列
+                    kafkaTemplate.send("contract-scheduled-dlq", transaction);
+                }
+
+                throw new RuntimeException(errorMsg, e);
             }
-            logger.debug("Initiating transfer to merchant:{}, amount:{}", merchantId, unitAmount);
-
-
-            transaction.setStatus(Transaction.TransactionStatus.SUCCESS);
-            transactionDao.insertOrUpdateTransactionSuccess(transaction);
-            logger.info("Transfer SUCCESS - contract:{} merchant:{} amount:{}", contractId, merchantId, unitAmount);
-        } catch (Exception e) {
-            transaction.setStatus(Transaction.TransactionStatus.FAILED);
-            transactionDao.insertOrUpdateTransactionFail(transaction);
-            String errorMsg = String.format("Transfer FAILED - contract:%s merchant:%s amount:%s", contractId, merchantId, unitAmount);
-            logger.error(errorMsg, e);
-
-            // 判断是否需要进入重试队列或死信队列
-            if (transaction.getRetryCount() < MAX_RETRY_COUNT) {
-                logger.info("Retrying transaction for contract:{} merchant:{} attempt:{}", contractId, merchantId, transaction.getRetryCount() + 1);
-                // 增加重试次数
-                transaction.setRetryCount(transaction.getRetryCount() + 1);
-                transactionDao.updateRetryCount(transaction);
-
-                // 将消息推送到重试队列
-                kafkaTemplate.send("contract-scheduled-retries", transaction);
-            } else {
-                logger.error("Max retry attempts reached for contract:{} merchant:{}, sending to dead letter queue", contractId, merchantId);
-                // 将消息推送到死信队列
-                kafkaTemplate.send("contract-scheduled-dlq", transaction);
-            }
-
-            throw new RuntimeException(errorMsg, e);
         }
     }
 
     // 重试队列消费
+    // 加入幂等性校验
+    //todo: certain hot account
     @KafkaListener(topics = "contract-scheduled-retries", groupId = "contract-group-retries")
     public void handleRetryTransaction(ConsumerRecord<String, Transaction> record) {
         Transaction transaction = record.value();
@@ -145,7 +166,14 @@ public class ContractTransferConsumer {
         Long merchantId = transaction.getMerchantId();
         BigDecimal unitAmount = transaction.getAmount();
 
+
+
+        if(paymentService.isProccessed(transaction.getTransactionId())){
+            return;
+        }
+
         logger.info("Retrying transaction for contract: {}", contractId);
+
 
         try {
             RLock merchantLock = redissonClient.getLock("merchantLock" + merchantId);

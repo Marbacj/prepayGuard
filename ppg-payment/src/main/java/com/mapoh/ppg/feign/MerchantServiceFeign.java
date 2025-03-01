@@ -1,5 +1,6 @@
 package com.mapoh.ppg.feign;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.feign.hystrix.MerchantServiceHystrix;
 import com.mapoh.ppg.vo.CommonResponse;
@@ -24,4 +25,6 @@ public interface MerchantServiceFeign {
     @PostMapping("ppg-merchant/recvtransfer")
     public CommonResponse<Boolean> receiveTransferAccount(@RequestBody TransferRequest transferRequest);
 
+    @PostMapping("/updateBalanceWithCAS")
+    public CommonResponse<Boolean> updateBalanceWithCAS(@RequestBody JSONObject transferRequest);
 }

@@ -32,7 +32,7 @@ public class MerchantServiceImpl implements MerchantService {
     private RedisTemplate<String, Integer> redisTemplate;
 
     @Resource
-    private RedissonClient redissonClient;
+    public RedissonClient redissonClient;
 
     MerchantServiceImpl(MerchantDao merchantDao) {
         this.merchantDao = merchantDao;

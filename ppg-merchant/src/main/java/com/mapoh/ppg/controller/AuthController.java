@@ -1,14 +1,18 @@
 package com.mapoh.ppg.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.LoginRequest;
 import com.mapoh.ppg.dto.RegisterRequest;
 import com.mapoh.ppg.dto.payment.TransferRequest;
 import com.mapoh.ppg.service.JwtService;
 import com.mapoh.ppg.service.MerchantService;
 import com.mapoh.ppg.vo.CommonResponse;
+import javassist.NotFoundException;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 
 /**
@@ -65,5 +69,22 @@ public class AuthController {
             return CommonResponse.successResponse(Boolean.FALSE);
         }
         return CommonResponse.successResponse(merchantService.addAmountByTransfer(merchantId, transferAmount));
+    }
+
+    /**
+     *
+     * @param transferRequest
+     * @return
+     * {
+     *     "merchantId" :
+     *     "transferAmount":
+     * }
+     */
+    @PostMapping("/updateBalanceWithCAS")
+    public CommonResponse<Boolean> updateBalanceWithCAS(@RequestBody JSONObject transferRequest) throws NotFoundException, InterruptedException {
+        Long merchantId = transferRequest.getLong("merchantId");
+        BigDecimal transferAmount = transferRequest.getBigDecimal("transferAmount");
+
+        return CommonResponse.successResponse(merchantService.transferWithRetry(merchantId, transferAmount));
     }
 }

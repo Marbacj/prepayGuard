@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class ContractScheduledJobHandler {
 
     public static final Logger logger = LoggerFactory.getLogger(ContractScheduledJobHandler.class);
-    private static final String TOPIC = "contract-scheduled-failed";
+    private static final String TOPIC = "contract-scheduled-retries";
 
     @Resource
     KafkaTemplate<String,Transaction> kafkaTemplate;
@@ -38,11 +38,17 @@ public class ContractScheduledJobHandler {
 //            XxlJobHelper.log("beat at:" + i);
 //            TimeUnit.SECONDS.sleep(2);
 //        }
-        XxlJobHelper.log("contract scheduled job");
-        List<Transaction> transactions = transactionDao.getTransactionsByStatus(Transaction.TransactionStatus.FAILED);
+
+        // 当前分片
+        int shardIndex = XxlJobHelper.getShardIndex();
+        int shardTotal = XxlJobHelper.getShardTotal();
+        List<Transaction> transactions = transactionDao.getFailedTransactionsByShard(
+                shardIndex, shardTotal
+        );
 
         for(Transaction transaction : transactions) {
             kafkaTemplate.send(TOPIC, transaction);
         }
+        XxlJobHelper.log("分片处理完成: shardIndex={}, 处理条数={}", shardIndex, transactions.size());
     }
 }

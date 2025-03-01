@@ -4,6 +4,7 @@ import com.mapoh.ppg.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
@@ -56,4 +57,13 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
     @Modifying
     @Query("UPDATE Transaction t set t.retryCount = t.retryCount + 1")
     void updateRetryCount(Transaction transaction);
+
+    @Query("SELECT t FROM Transaction t WHERE t.status = 'FAILED' AND MOD(t.transactionId, :shardTotal) = :shardIndex")
+    List<Transaction> getFailedTransactionsByShard(
+            @Param("shardIndex") int shardIndex,
+            @Param("shardTotal") int shardTotal
+    );
+
+    @Query("SELECT CASE WHEN t.status = 'success' THEN false ELSE true END FROM Transaction t WHERE t.transactionId = :transactionId")
+    Boolean checkStatusByTransactionId(@Param("transactionId") Long transactionId);
 }
