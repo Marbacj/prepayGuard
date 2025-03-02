@@ -18,4 +18,5 @@ public class ContractScheduledRequest implements Serializable {
     private Long contractId;
     private Long merchantId;
     private Long userId;
+    private int installment;
 }

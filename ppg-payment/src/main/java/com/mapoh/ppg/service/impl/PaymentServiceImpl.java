@@ -13,6 +13,7 @@ import com.mapoh.ppg.listener.ContractScheduledListener;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.utils.RedisDelayedQueue;
 import com.mapoh.ppg.vo.ContractVo;
+import jdk.nashorn.internal.runtime.regexp.joni.ast.StringNode;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     RedisDelayedQueue redisDelayedQueue;
 
     @Resource
-    public RedisTemplate<String, JSONObject> redisTemplate;
+    public RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     private TransactionDao transactionDao;
@@ -112,7 +113,12 @@ public class PaymentServiceImpl implements PaymentService {
 //            RedisDelayedQueue redisDelayedQueue = new RedisDelayedQueue();
             for(int i = 1; i <= validityUnit; i++){
                 long delay = i * timestamp.getTime() - System.currentTimeMillis();
+                contractScheduledRequest.setInstallment(i);
                 redisDelayedQueue.addQueue(contractScheduledRequest, delay, TimeUnit.MILLISECONDS, ContractScheduledListener.class.getName());
+
+                String taskId = contractId + "_installment_" + i;
+
+                redisTemplate.opsForSet().add("contract_tasks" + contractId, taskId);
             }
             return true;
         }catch (Exception e) {

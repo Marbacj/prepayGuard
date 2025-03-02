@@ -5,6 +5,8 @@ import com.mapoh.ppg.dto.ContractScheduledRequest;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +29,9 @@ public class ContractScheduledListener implements RedisDelayedQueueListener<Cont
     @Resource
     private final KafkaTemplate<String, ContractScheduledRequest> kafkaTemplate;
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     ContractScheduledListener(KafkaTemplate<String, ContractScheduledRequest> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -38,5 +43,8 @@ public class ContractScheduledListener implements RedisDelayedQueueListener<Cont
     public void invoke(ContractScheduledRequest contractScheduledRequest) {
         logger.info("fulfill contract, contractId:{}, merchantId:{}", contractScheduledRequest.getContractId(), contractScheduledRequest.getMerchantId());
         kafkaTemplate.send(TOPIC, contractScheduledRequest);
+
+        String taskId = contractScheduledRequest.getContractId() + "_installment_" + contractScheduledRequest.getInstallment();
+        redisTemplate.opsForSet().remove("contract_tasks" + contractScheduledRequest.getContractId(), taskId);
     }
 }
