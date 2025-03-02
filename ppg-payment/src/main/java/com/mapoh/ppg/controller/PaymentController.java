@@ -3,6 +3,7 @@ package com.mapoh.ppg.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.mapoh.ppg.constants.Status;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.RefundRequest;
@@ -14,11 +15,13 @@ import com.mapoh.ppg.service.impl.PaypalPayment;
 import com.mapoh.ppg.service.strategy.PayContextStrategy;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.OnlinePaymentResponse;
+
 import com.paypal.sdk.PaypalServerSDKClient;
 import com.paypal.sdk.controllers.OrdersController;
 import com.paypal.sdk.exceptions.ApiException;
 import com.paypal.sdk.http.response.ApiResponse;
 import com.paypal.sdk.models.*;
+import com.sun.jmx.remote.util.OrderClassLoaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +52,7 @@ public class PaymentController {
     private final static Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     PaymentService paymentService;
-//    private final PaypalServerSDKClient paypalClient;
+    //    private final PaypalServerSDKClient paypalClient;
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -66,7 +69,7 @@ public class PaymentController {
         Long contractId = balancePaymentRequest.getContractId();
         Long userId = balancePaymentRequest.getUserId();
 
-        if(userId == null || contractId == null) {
+        if (userId == null || contractId == null) {
             return CommonResponse.successResponse(false);
         }
 
@@ -88,7 +91,7 @@ public class PaymentController {
 
     @PostMapping("/refund")
     public CommonResponse<Boolean> refund(@RequestBody RefundRequest refundRequest) {
-        if(refundRequest == null || refundRequest.getContractId() == null || refundRequest.getUserId() == null) {
+        if (refundRequest == null || refundRequest.getContractId() == null || refundRequest.getUserId() == null) {
             return CommonResponse.successResponse(false);
         }
         return CommonResponse.successResponse(paymentService.refundBalance(refundRequest));
@@ -171,4 +174,6 @@ public class PaymentController {
 //        ApiResponse<Order> apiResponse = ordersController.ordersCapture(ordersCaptureInput);
 //        return apiResponse.getResult();
 //    }
+
+
 }
