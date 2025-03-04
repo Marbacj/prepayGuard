@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Configuration;
 //@Configuration
 //public class PaypalSDKClient {
 //
-//    private String PAYPAL_CLIENT_ID = "AT_6ZsCpF_XORt9tS3a7zOnkVBK09pvqgZfxCc7zCl9uSQve4ImbFGlKm-BvHtXHStmFEuBxIcwhha2D";
+//    private String PAYPAL_CLIENT_ID = "";
 //
-//    private String PAYPAL_CLIENT_SECRET = "EOkwQyNKus4dlVFRsFZeL8r-ThDqfOZoRzhUc5gZV3pwUm6hm-wpM_dLtOk2_3yAU9wrj9Cwfzr7AsDc";
+//    private String PAYPAL_CLIENT_SECRET = "";
 //
 //    @Bean
 //    public PaypalServerSDKClient paypalClient(){
