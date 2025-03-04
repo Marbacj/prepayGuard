@@ -2,6 +2,7 @@ package com.mapoh.ppg.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.Status;
+import com.mapoh.ppg.dao.TransactionDao;
 import com.mapoh.ppg.dto.BalancePaymentRequest;
 import com.mapoh.ppg.dto.ContractScheduledRequest;
 import com.mapoh.ppg.dto.RefundRequest;
@@ -12,6 +13,7 @@ import com.mapoh.ppg.listener.ContractScheduledListener;
 import com.mapoh.ppg.service.PaymentService;
 import com.mapoh.ppg.utils.RedisDelayedQueue;
 import com.mapoh.ppg.vo.ContractVo;
+import jdk.nashorn.internal.runtime.regexp.joni.ast.StringNode;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,10 +47,10 @@ public class PaymentServiceImpl implements PaymentService {
     RedisDelayedQueue redisDelayedQueue;
 
     @Resource
-    public RedisTemplate<String, JSONObject> redisTemplate;
+    public RedisTemplate<String, String> redisTemplate;
 
-    @Resource
-    public RedissonClient redissonClient;
+    @Autowired
+    private TransactionDao transactionDao;
 
     @SuppressWarnings("all")
     PaymentServiceImpl(ContractServiceFeign contractServiceFeign,
@@ -59,17 +62,19 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Resource
     public KafkaTemplate<String, RefundRequest> kafkaTemplate;
+
     /**
      *
      * 使用余额进行支付
      * 先进行扣除用户余额
      * 其次进行修改合同状态
      * 将合同放入延迟队列中进行生效
+     *
+     * problem: add the
      * @param balancePaymentRequest
      * @return
      * todo: add the function that transfer scheduled and add query the merchant from contracts
      */
-    @Transactional
     @Override
     public Boolean payInBalance(BalancePaymentRequest balancePaymentRequest) {
 
@@ -88,7 +93,6 @@ public class PaymentServiceImpl implements PaymentService {
             logger.error("the user balance is not enough:{}", balance);
             return false;
         }
-
         try {
 
             userServiceFeign.settlement(new SettlementRequest(userId, amount));
@@ -109,7 +113,12 @@ public class PaymentServiceImpl implements PaymentService {
 //            RedisDelayedQueue redisDelayedQueue = new RedisDelayedQueue();
             for(int i = 1; i <= validityUnit; i++){
                 long delay = i * timestamp.getTime() - System.currentTimeMillis();
+                contractScheduledRequest.setInstallment(i);
                 redisDelayedQueue.addQueue(contractScheduledRequest, delay, TimeUnit.MILLISECONDS, ContractScheduledListener.class.getName());
+
+                String taskId = contractId + "_installment_" + i;
+
+                redisTemplate.opsForSet().add("contract_tasks" + contractId, taskId);
             }
             return true;
         }catch (Exception e) {
@@ -134,5 +143,15 @@ public class PaymentServiceImpl implements PaymentService {
 
         kafkaTemplate.send(TOPIC, refundRequest);
         return true;
+    }
+
+    @Override
+    public Boolean isProccessed(Long transactionId){
+        return transactionDao.checkStatusByTransactionId(transactionId);
+    }
+
+    @Override
+    public BigDecimal getTotalFee(Long contractId) {
+        return contractServiceFeign.getAmount(contractId).getData();
     }
 }

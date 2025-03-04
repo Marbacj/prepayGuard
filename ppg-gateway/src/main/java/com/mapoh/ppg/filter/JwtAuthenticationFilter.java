@@ -2,9 +2,12 @@ package com.mapoh.ppg.filter;
 
 import com.mapoh.ppg.util.JwtUtil;
 import com.mapoh.ppg.util.RedisUtil;
+import com.mapoh.ppg.vo.CommonResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -39,4 +42,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
+
 }

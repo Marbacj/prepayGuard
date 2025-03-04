@@ -49,6 +49,7 @@ spring:
     consumer:
       group-id: contract-group
       auto-offset-reset: earliest
+#      防止重复消费
       enable-auto-commit: false
       value-deserializer: com.mapoh.ppg.serializer.ContractScheduledRequestDeserializer
 #   开启 ribbon 重试机制, 即获取服务失败是否从另外一个节点重试

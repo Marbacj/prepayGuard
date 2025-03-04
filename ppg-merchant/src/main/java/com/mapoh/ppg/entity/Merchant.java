@@ -47,6 +47,9 @@ public class Merchant {
     @CreationTimestamp
     private Timestamp createdAt;
 
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
     public Merchant(String merchantName, String password, String idCardNumber, String phoneNumber) {
         this.merchantName = merchantName;
         this.password = password;
