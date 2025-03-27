@@ -32,6 +32,14 @@ zuul:
       path: /ppg-contract/**
       service-id: eureka-client-ppg-contract
       strip-prefix: false
+
+    # 支付微服务
+    payment:
+      path: /ppg-payment/**
+      service-id: eureka-client-ppg-payment
+      strip-prefix: false
+
+
   host:
     connect-timeout-millis: 15000
     socket-timeout-millis: 60000

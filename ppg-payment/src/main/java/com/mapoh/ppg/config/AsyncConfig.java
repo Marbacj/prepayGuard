@@ -20,7 +20,7 @@ public class AsyncConfig {
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 初始线程数
-        executor.setCorePoolSize(10);
+        executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
         // 最大线程数
         executor.setMaxPoolSize(50);
         // 队列大小

@@ -20,4 +20,6 @@ public interface PaymentService {
     BigDecimal getTotalFee(Long contractId);
 
     Boolean isProccessed(Long transactionId);
+
+//    Boolean cancelinstallment(Long contractId, int installment);
 }

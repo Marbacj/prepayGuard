@@ -217,4 +217,23 @@ public class ContractTransferConsumer {
         logger.error("Dead letter transaction for contract:{} merchant:{}", transaction.getContractId(), transaction.getMerchantId());
         // 此处可以将失败的交易记录到数据库或发送通知给管理员等操作
     }
+
+    @KafkaListener(topics = "contract-payment", groupId = "payment-group")
+    public void consumePaymentMessage(ConsumerRecord<String, String> record) {
+        try {
+            String message = record.value();
+            logger.info("Received payment message: {}", message);
+
+            // 解析 JSON 数据（可以用 Jackson 解析）
+            // JSONObject jsonObject = new JSONObject(message);
+            // Long userId = jsonObject.getLong("userId");
+            // Long contractId = jsonObject.getLong("contractId");
+            // BigDecimal amount = new BigDecimal(jsonObject.getString("amount"));
+
+            // 处理消息（如更新数据库、通知商户）
+            logger.info("Processing payment for message: {}", message);
+        } catch (Exception e) {
+            logger.error("Error processing Kafka message: {}", e.getMessage());
+        }
+    }
 }
