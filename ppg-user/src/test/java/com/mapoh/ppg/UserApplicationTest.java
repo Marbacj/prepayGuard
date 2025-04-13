@@ -52,16 +52,23 @@ public class UserApplicationTest {
         System.out.println(jwtService.login(name,password));
     }
 
+//    @Test
+//    public void testModifyUserinfo(){
+//        UserInfoRequest userInfoRequest = new UserInfoRequest();
+//        long id = 1;
+//
+//        userInfoRequest.setAccountName("modified");
+//        userInfoRequest.setPassword("888888");
+//        userInfoRequest.setEmail("test@example.com");
+//        userInfoRequest.setPhoneNumber("12345678901");
+//
+//        System.out.println(userService.modifyUserInfo(userInfoRequest, id));
+//    }
+
     @Test
-    public void testModifyUserinfo(){
-        UserInfoRequest userInfoRequest = new UserInfoRequest();
-        long id = 1;
-
-        userInfoRequest.setAccountName("modified");
-        userInfoRequest.setPassword("888888");
-        userInfoRequest.setEmail("test@example.com");
-        userInfoRequest.setPhoneNumber("12345678901");
-
-        System.out.println(userService.modifyUserInfo(userInfoRequest, id));
+    public void testQueryUserInfo(){
+        String username = "user0091";
+//        userService.getUserDetailsByUsername(username);
+        System.out.println(userService.getUserDetailsByUsername(username));
     }
 }

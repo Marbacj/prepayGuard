@@ -32,4 +32,6 @@ public interface MerchantDao extends JpaRepository<Merchant, Long> {
     int casUpdateBalance(@Param("merchantId") Long merchantId,@Param("delta") BigDecimal delta,@Param("expectedVersion") int expectedVersion);
 
     Merchant findMerchantById(Long id);
+
+    Merchant getMerchantByMerchantName(String merchantName);
 }

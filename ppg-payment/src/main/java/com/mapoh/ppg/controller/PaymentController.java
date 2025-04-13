@@ -175,5 +175,8 @@ public class PaymentController {
 //        return apiResponse.getResult();
 //    }
 
-
+    @GetMapping("ppg-payment/getMerchantTodayIncome")
+    public CommonResponse<Double> getMerchantTodayIncome(Long merchantId){
+        return CommonResponse.successResponse(paymentService.getMerchantTodayIncome(merchantId));
+    }
 }

@@ -178,6 +178,17 @@ public class PaymentServiceImpl implements PaymentService {
         return transactionDao.checkStatusByTransactionId(transactionId);
     }
 
+    @Override
+    public Double getMerchantTodayIncome(Long merchantId) {
+        Double result = transactionDao.getIncomeByMerchantId(merchantId);
+        logger.info("result : {}" , result);
+        if(result == null) {
+            logger.info("the merchant income is exception");
+            return 0.0;
+        }
+        return result;
+    }
+
 
     public Boolean cancelinstallment(Long contractId, int installment) {
         String taskId = contractId + "_installment_" + installment;
@@ -212,6 +223,16 @@ public class PaymentServiceImpl implements PaymentService {
 
     }
 
+    /**
+     *
+     * 首先删除缓存中的合同信息，
+     * 同时更新数据库中的状态
+     * 为了弥补redis过期事件有可能内存满了丢失事件的不足，
+     * 需要加入xxl-job去删除合同，通过扫描退款表去更新合同状态
+     * @param contractId
+     * @param currentInstallment
+     * @param remainingTimeMillis
+     */
     public void cancelContractWithCurrentInstallment(Long contractId, int currentInstallment, long remainingTimeMillis) {
         String cancelKey = "contract:cancel:" + contractId;
 

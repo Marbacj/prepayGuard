@@ -62,7 +62,7 @@ public class TemplateServiceImpl implements TemplateService {
         // 验证模板名称是否重复
         boolean exists = contractTemplateDao.existsByTemplateName(templateName);
         if (exists) {
-            return "The template name already exists";
+            return "failed";
         }
 
         // 创建 ContractTemplate 实体对象

@@ -2,7 +2,9 @@ package com.mapoh.ppg.service.impl;
 
 import com.mapoh.ppg.dao.MerchantDao;
 import com.mapoh.ppg.entity.Merchant;
+import com.mapoh.ppg.feign.PaymentServiceFeign;
 import com.mapoh.ppg.service.MerchantService;
+import com.mapoh.ppg.vo.CommonResponse;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import javassist.NotFoundException;
 import org.redisson.api.RLock;
@@ -31,11 +33,16 @@ public class MerchantServiceImpl implements MerchantService {
     @Resource
     private RedisTemplate<String, Integer> redisTemplate;
 
+    public final PaymentServiceFeign paymentServiceFeign;
+
     @Resource
     public RedissonClient redissonClient;
 
-    MerchantServiceImpl(MerchantDao merchantDao) {
+    @SuppressWarnings("all")
+    MerchantServiceImpl(MerchantDao merchantDao,
+                        PaymentServiceFeign paymentServiceFeign) {
         this.merchantDao = merchantDao;
+        this.paymentServiceFeign = paymentServiceFeign;
     }
 
     @Override
@@ -120,4 +127,17 @@ public class MerchantServiceImpl implements MerchantService {
         }
         return Boolean.FALSE;
     }
+
+    @Override
+    public Merchant getMerchantIdByMerchantName(String merchantName) {
+        return merchantDao.getMerchantByMerchantName(merchantName);
+    }
+
+    @Override
+    public Double getIncomeByMerchantId(Long merchantId) {
+        Double income = 0.0;
+        income =  paymentServiceFeign.getMerchantTodayIncome(merchantId).getData();
+        return income;
+    }
+
 }

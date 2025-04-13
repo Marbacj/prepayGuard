@@ -27,4 +27,9 @@ public class ContractVoDistributionApplicationTest {
     }
 
 
+
+    @Test
+    public void test2(){
+        System.out.println(distributionService.getPendingOrderByMerchantId(1000006L));
+    }
 }

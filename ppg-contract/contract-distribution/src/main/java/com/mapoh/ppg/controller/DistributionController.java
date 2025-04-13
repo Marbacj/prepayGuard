@@ -147,8 +147,11 @@ public class DistributionController {
 ////    public CommonResponse<JSONObject> getRefundContractInfo(){
 ////
 ////    }
-
-
+    //查询合同
+    @GetMapping("/pendingOrder/today/{merchantId}")
+    public CommonResponse<Integer> getTodayPendingOrder(@PathVariable("merchantId") Long merchantId) {
+        return CommonResponse.successResponse(distributionService.getPendingOrderByMerchantId(merchantId));
+    }
 
 
 }

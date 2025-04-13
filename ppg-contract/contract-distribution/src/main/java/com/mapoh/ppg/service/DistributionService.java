@@ -27,4 +27,6 @@ public interface DistributionService {
     Long getMerchantId(Long contractId);
 
     ContractVo getContractVoByContractId(Long contractId);
+
+    Integer getPendingOrderByMerchantId(Long merchantId);
 }

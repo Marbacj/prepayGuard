@@ -70,4 +70,8 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
             "c.totalAmount," +
             "c.totalUnits from Contract c where c.contractId = :contractId")
     public ContractVo getContractVoByContractId(@Param("contractId") Long contractId);
+
+
+    @Query("SELECT count(c.contractId) from Contract c where c.merchantId = :merchantId and c.paymentStatus = 'PENDING' ")
+    Integer getPendingOrderByMerchantId(Long merchantId);
 }

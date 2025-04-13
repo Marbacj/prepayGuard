@@ -66,4 +66,13 @@ public interface TransactionDao extends JpaRepository<Transaction, Long> {
 
     @Query("SELECT CASE WHEN t.status = 'success' THEN false ELSE true END FROM Transaction t WHERE t.transactionId = :transactionId")
     Boolean checkStatusByTransactionId(@Param("transactionId") Long transactionId);
+
+
+    @Query("SELECT SUM(t.amount) " +
+            "FROM Transaction t " +
+            "WHERE t.merchantId = :merchantId " +
+            "AND t.status = 'SUCCESS' " +
+            "AND FUNCTION('DATE', t.transactionDate) = CURRENT_DATE " +
+            "GROUP BY FUNCTION('DATE', t.transactionDate)")
+    Double getIncomeByMerchantId(Long merchantId);
 }

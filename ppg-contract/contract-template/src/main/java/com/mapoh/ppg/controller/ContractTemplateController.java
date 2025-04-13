@@ -31,6 +31,31 @@ public class ContractTemplateController {
         return "index";
     }
 
+
+    /**
+     * req：
+     * {
+     *     templateName: "测试模版",
+     *     description: "测试模版",
+     *     unitAmount: 0.01,
+     *     validityPeriod: 1,
+     *     validityUnit: "月",
+     *     activationMethod: "首次消费生效",
+     *     refundable: true,
+     *     refundPolicy: "测试模版",
+     *     termsAndConditions: "测试模版"
+     * }
+     * response:
+     * {
+     *     code:
+     *     message:
+     *     data:{
+     *         "sucess"/"false"
+     *     }
+     * }
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/build", method = RequestMethod.POST)
     public CommonResponse<String> buildTemplate(@RequestBody TemplateRequest request) {
         if(request == null) {

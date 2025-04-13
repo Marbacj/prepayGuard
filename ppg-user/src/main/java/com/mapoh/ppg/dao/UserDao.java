@@ -30,13 +30,23 @@ public interface UserDao extends JpaRepository<User, Long> {
     /**
      * updateUserInfo
      */
+    @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.password = :password, u.phoneNumber = :phoneNumber, " +
-            "u.email = :email, u.accountName = :accountName WHERE u.id = :id")
-    int modifyUserInfo(@Param("id") Long id,
-                       @Param("accountName") String accountName,
+    @Query("UPDATE User u SET u.password = :password, u.phoneNumber = :phoneNumber, u.email = :email, u.accountName = :newAccountName WHERE u.id = :id")
+    int modifyUserInfoWithPassword(@Param("id") Long id,
+                       @Param("newAccountName") String newAccountName,
                        @Param("email") String email,
                        @Param("password") String password,
+                       @Param("phoneNumber") String phoneNumber);
+    /**
+     * updateUserInfo
+     */
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET  u.phoneNumber = :phoneNumber, u.email = :email, u.accountName = :newAccountName WHERE u.id = :id")
+    int modifyUserInfo(@Param("id") Long id,
+                       @Param("newAccountName") String newAccountName,
+                       @Param("email") String email,
                        @Param("phoneNumber") String phoneNumber);
 
     @Query("SELECT u.balance from User  u WHERE u.id = :userId")
@@ -47,4 +57,16 @@ public interface UserDao extends JpaRepository<User, Long> {
     @Transactional
     @Query("UPDATE User u SET u.balance = u.balance - :sub where u.id = :userId")
     void modifyUserBalance(@Param("userId") Long userId,@Param("sub") BigDecimal sub);
+
+    @Query
+    User getUserByAccountName(String username);
+
+    @Query
+    User getUserByUserName(String username);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.balance = u.balance + :amount where u.accountName = :accountName")
+    int modifyUserBalanceRecharge(String accountName, BigDecimal amount);
+
 }

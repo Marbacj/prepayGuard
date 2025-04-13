@@ -48,7 +48,7 @@ public class Merchant {
     private Timestamp createdAt;
 
     @Column(name = "version", nullable = false)
-    private Integer version;
+    private Integer version = 1;
 
     public Merchant(String merchantName, String password, String idCardNumber, String phoneNumber) {
         this.merchantName = merchantName;

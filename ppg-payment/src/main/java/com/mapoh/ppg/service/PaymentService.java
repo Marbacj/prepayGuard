@@ -21,5 +21,7 @@ public interface PaymentService {
 
     Boolean isProccessed(Long transactionId);
 
+    Double getMerchantTodayIncome(Long merchantId);
+
 //    Boolean cancelinstallment(Long contractId, int installment);
 }

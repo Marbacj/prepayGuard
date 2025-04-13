@@ -205,6 +205,13 @@ public class DistributionServiceImpl implements DistributionService {
         return contractVo;
     }
 
+    @Override
+    public Integer getPendingOrderByMerchantId(Long merchantId) {
+        Integer pendingOrder = 0;
+        pendingOrder = contractDao.getPendingOrderByMerchantId(merchantId);
+        return pendingOrder;
+    }
+
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
         if (ContractStatus.MERCHANTSIGN.toString().equals(currentStatus)) {
             contractDao.updateContractStatusToSigned(contractId);
