@@ -74,4 +74,16 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
 
     @Query("SELECT count(c.contractId) from Contract c where c.merchantId = :merchantId and c.paymentStatus = 'PENDING' ")
     Integer getPendingOrderByMerchantId(Long merchantId);
+
+    @Query("SELECT COUNT(DISTINCT c.userId) " +
+            "FROM Contract c " +
+            "WHERE c.merchantId = :merchantId " +
+            "AND FUNCTION('DATE', c.createdAt) = CURRENT_DATE " +
+            "AND NOT EXISTS (" +
+            "   SELECT 1 FROM Contract c2 " +
+            "   WHERE c2.userId = c.userId " +
+            "   AND c2.merchantId = :merchantId " +
+            "   AND FUNCTION('DATE', c2.createdAt) < CURRENT_DATE" +
+            ")")
+    Integer getNewCustomer(@Param("merchantId") Long merchantId);
 }

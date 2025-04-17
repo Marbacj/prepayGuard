@@ -28,9 +28,19 @@ zuul:
       strip-prefix: false
 
     # 合同微服务路径
-    contract:
-      path: /ppg-contract/**
-      service-id: eureka-client-ppg-contract
+#    contract:
+#      path: /ppg-contract/**
+#      service-id: eureka-client-ppg-contract
+#      strip-prefix: false
+    # 合同微服务路径
+    distribution:
+      path: /ppg-contract/distribution/**
+      service-id: eureka-client-contract-distribution
+      strip-prefix: false
+
+    template:
+      path: /ppg-contract/template/**
+      service-id: eureka-client-contract-template
       strip-prefix: false
 
     # 支付微服务

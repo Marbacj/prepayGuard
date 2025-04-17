@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 public interface DistributionService {
 
-    String createContract(CreateContractRequest createContractRequest);
+    Long createContract(CreateContractRequest createContractRequest);
 
     String signContract(SignContractRequest signContractRequest);
 
@@ -29,4 +29,6 @@ public interface DistributionService {
     ContractVo getContractVoByContractId(Long contractId);
 
     Integer getPendingOrderByMerchantId(Long merchantId);
+
+    Integer getNewCustomer(Long merchantId);
 }

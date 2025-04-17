@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,4 +27,6 @@ public interface ContractTemplateDao extends JpaRepository<ContractTemplate, Lon
     String findTemplateNameByTemplateId(@Param("templateId") Integer templateId);
 
     public Optional<ContractTemplate> getContractTemplateByTemplateId(Integer contractId);
+
+    List<ContractTemplate> findContractTemplateByMerchantId(Long merchantId);
 }

@@ -52,7 +52,7 @@ public class DistributionServiceImpl implements DistributionService {
     //todo: try to acquire template id from template service
     //todo: change uuid to snowflake
     @Override
-    public String createContract(CreateContractRequest createContractRequest) {
+    public Long createContract(CreateContractRequest createContractRequest) {
         String userId = createContractRequest.getUserId();
         String merchantId = createContractRequest.getMerchantId();
         Integer templateId = Integer.valueOf(createContractRequest.getTemplateId());
@@ -98,7 +98,7 @@ public class DistributionServiceImpl implements DistributionService {
         contractDao.save(contract);
         NotificationRequest notificationRequest = new NotificationRequest();
 
-        return "合同创建成功，合同ID：" + contract.getContractId();
+        return contractCode;
     }
 
     /**
@@ -210,6 +210,11 @@ public class DistributionServiceImpl implements DistributionService {
         Integer pendingOrder = 0;
         pendingOrder = contractDao.getPendingOrderByMerchantId(merchantId);
         return pendingOrder;
+    }
+
+    @Override
+    public Integer getNewCustomer(Long merchantId) {
+        return contractDao.getNewCustomer(merchantId);
     }
 
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {

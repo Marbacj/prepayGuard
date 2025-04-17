@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @Data
 public class TemplateRequest {
 
+    private Long merchantId;
+
     /** 模板名称 */
     @NotBlank(message = "模板名称不能为空")
     @Size(max = 255, message = "模板名称长度不能超过255个字符")

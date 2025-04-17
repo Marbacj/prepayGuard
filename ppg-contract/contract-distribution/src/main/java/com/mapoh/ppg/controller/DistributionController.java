@@ -1,6 +1,5 @@
 package com.mapoh.ppg.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.service.DistributionService;
@@ -8,7 +7,6 @@ import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.ContractVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -43,11 +41,22 @@ public class DistributionController {
     }
 
     /**
+     * req{
+     *     "templateId"
+     *     "userId"
+     *     "merchantId"
+     *     "totalUnits"
+     *     "totalAmount"
+     *     "activationDate"
+     * }
+     * response{
+     *     "contractCode":
+     * }
      * @param createContractRequest
      * @return
      */
     @PostMapping("/create")
-    public CommonResponse<String> createContract(@RequestBody CreateContractRequest createContractRequest) {
+    public CommonResponse<Long> createContract(@RequestBody CreateContractRequest createContractRequest) {
         if (createContractRequest.getUserId() == null
                 || createContractRequest.getTemplateId() == null) {
             logger.warn("the userId is null or contractId is null");
@@ -152,6 +161,28 @@ public class DistributionController {
     public CommonResponse<Integer> getTodayPendingOrder(@PathVariable("merchantId") Long merchantId) {
         return CommonResponse.successResponse(distributionService.getPendingOrderByMerchantId(merchantId));
     }
+
+    @GetMapping("getNewCustomer/{merchantId}")
+    public CommonResponse<Integer> getNewCustomer(@PathVariable("merchantId") Long merchantId){
+        return CommonResponse.successResponse(distributionService.getNewCustomer(merchantId));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
