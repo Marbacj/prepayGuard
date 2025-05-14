@@ -57,6 +57,12 @@ public class Transaction {
     @Column(name = "updated_at", insertable = false)
     private LocalDateTime updatedAt;
 
+    public Transaction(Long contractId, Long userId, BigDecimal amount) {
+        this.contractId = contractId;
+        this.userId = userId;
+        this.amount = amount;
+    }
+
 
     // Getters and Setters
 

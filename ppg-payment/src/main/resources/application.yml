@@ -44,8 +44,9 @@ spring:
       acks: all
       properties:
         linger.ms: 5
-        enable.idempotence: true
+        enable.idempotence: true # 开启幂等性，避免重复发送
       value-serializer: com.mapoh.ppg.serializer.ContractScheduledRequestSerializer
+      transaction-id-prefix: payment_txn
     consumer:
       group-id: contract-group
       auto-offset-reset: earliest

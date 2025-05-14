@@ -33,6 +33,8 @@ public class JwtServiceImpl implements JwtService {
 
     //unit: ms
     public static final int expireTime = 60 * 60 * 1000;
+
+
     @Override
     public boolean register(RegisterRequest registerRequest) {
 
@@ -59,6 +61,8 @@ public class JwtServiceImpl implements JwtService {
         String merchantName = loginRequest.getMerchantName();
         String password = loginRequest.getPassword();
 
+        logger.info(merchantName);
+        logger.info(password);
         boolean result = merchantDao.existsByMerchantNameAndPassword(merchantName, password);
         if(!result) {
             logger.error("merchant name and password does not exist");

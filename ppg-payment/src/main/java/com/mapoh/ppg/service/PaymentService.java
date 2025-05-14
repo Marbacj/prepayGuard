@@ -20,4 +20,8 @@ public interface PaymentService {
     BigDecimal getTotalFee(Long contractId);
 
     Boolean isProccessed(Long transactionId);
+
+    Double getMerchantTodayIncome(Long merchantId);
+
+//    Boolean cancelinstallment(Long contractId, int installment);
 }

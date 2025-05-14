@@ -51,4 +51,9 @@ public class MerchantApplicationTest {
     public void testModifyAmount(){
         System.out.println(merchantService.addAmountByTransfer(1L, new BigDecimal(10)));
     }
+
+    @Test
+    public void testMerchantInfo(){
+        System.out.println(merchantService.getMerchantIdByMerchantName("11"));
+    }
 }

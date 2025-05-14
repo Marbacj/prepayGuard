@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author mabohv
@@ -32,12 +33,12 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
 
 
     @Modifying
-    @Query("UPDATE Contract c SET c.status = 'USERSIGN' WHERE c.userId = :signerId")
-    void updateUserSignStatus(@Param("signerId") Long signerId);
+    @Query("UPDATE Contract c SET c.status = 'USERSIGN' WHERE c.contractId = :contractId")
+    void updateUserSignStatus(@Param("contractId") Long contractId);
 
     @Modifying
-    @Query("UPDATE Contract c SET c.status = 'MERCHANTSIGN' WHERE c.merchantId = :signerId")
-    void updateMerchantSignStatus(@Param("signerId") Long signerId);
+    @Query("UPDATE Contract c SET c.status = 'MERCHANTSIGN' WHERE c.contractId = :contractId")
+    void updateMerchantSignStatus(@Param("contractId") Long contractId);
 
     @Query("SELECT c.totalAmount from Contract c where c.contractId = :contractId")
     BigDecimal getTotalAmountByContractId(@Param("contractId") Long contractId);
@@ -70,4 +71,37 @@ public interface ContractDao extends JpaRepository<Contract, Long> {
             "c.totalAmount," +
             "c.totalUnits from Contract c where c.contractId = :contractId")
     public ContractVo getContractVoByContractId(@Param("contractId") Long contractId);
+
+
+    @Query("SELECT count(c.contractId) from Contract c where c.merchantId = :merchantId and c.paymentStatus = 'PENDING' ")
+    Integer getPendingOrderByMerchantId(Long merchantId);
+
+    @Query("SELECT COUNT(DISTINCT c.userId) " +
+            "FROM Contract c " +
+            "WHERE c.merchantId = :merchantId " +
+            "AND FUNCTION('DATE', c.createdAt) = CURRENT_DATE " +
+            "AND NOT EXISTS (" +
+            "   SELECT 1 FROM Contract c2 " +
+            "   WHERE c2.userId = c.userId " +
+            "   AND c2.merchantId = :merchantId " +
+            "   AND FUNCTION('DATE', c2.createdAt) < CURRENT_DATE" +
+            ")")
+    Integer getNewCustomer(@Param("merchantId") Long merchantId);
+
+    @Query
+    List<Contract> findByMerchantId(Long merchantId);
+
+    @Query
+    List<Contract> findByUserId(Long userId);
+
+    @Query
+    Contract getContractByContractId(Long contractId);
+
+    @Query
+    List<Contract> findByUserIdAndStatus(Long userId, ContractStatus contractStatus);
+
+    @Transactional
+    @Modifying
+    @Query("Update Contract c set c.status = 'refunding' where c.contractId = :contractId")
+    Boolean changeStatusToRefund(Long contractId);
 }

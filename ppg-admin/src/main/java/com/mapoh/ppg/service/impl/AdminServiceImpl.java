@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +28,8 @@ public class AdminServiceImpl implements AdminService {
     RefundDao refundDao;
 
     public final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+
+
 
     AdminServiceImpl(RefundDao refundDao) {
         this.refundDao = refundDao;
@@ -76,9 +81,19 @@ public class AdminServiceImpl implements AdminService {
      * @param status
      * @param reason
      * @return
+     * public void cancelContractWithCurrentInstallment(String contractId, int currentInstallment, long remainingTimeMillis) {
+     *     String cancelKey = "contract:cancel:" + contractId;
+     *
+     *     // 存储当前期数到 Redis，并设置剩余时间后过期
+     *     redisTemplate.opsForValue().set(cancelKey, String.valueOf(currentInstallment));
+     *     redisTemplate.expire(cancelKey, remainingTimeMillis, TimeUnit.MILLISECONDS);
+     *
+     *     logger.info("合同 {} 已标记取消，当前期 {} 结束后将移除后续任务", contractId, currentInstallment);
+     * }
      */
     @Override
     public Boolean processRefund(Long refundId, String status, String reason) {
+        return Boolean.FALSE;
 
     }
 

@@ -47,6 +47,7 @@ import static org.bouncycastle.crypto.tls.ConnectionEnd.client;
  */
 
 @RestController
+@CrossOrigin
 public class PaymentController {
 
     private final static Logger logger = LoggerFactory.getLogger(PaymentController.class);
@@ -175,5 +176,8 @@ public class PaymentController {
 //        return apiResponse.getResult();
 //    }
 
-
+    @GetMapping("ppg-payment/getMerchantTodayIncome")
+    public CommonResponse<Double> getMerchantTodayIncome(Long merchantId){
+        return CommonResponse.successResponse(paymentService.getMerchantTodayIncome(merchantId));
+    }
 }

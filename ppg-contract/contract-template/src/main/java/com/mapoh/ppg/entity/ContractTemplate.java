@@ -77,6 +77,9 @@ public class ContractTemplate {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "merchant_id", nullable = false)
+    private Long merchantId;
+
     /** 在保存时自动设置创建时间和更新时间 */
     @PrePersist
     public void prePersist() {

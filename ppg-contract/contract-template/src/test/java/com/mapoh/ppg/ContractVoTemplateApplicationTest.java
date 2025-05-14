@@ -40,4 +40,9 @@ public class ContractVoTemplateApplicationTest {
     public void test(){
         System.out.println(templateService.getTemplate(1));
     }
+
+    @Test
+    public void test1(){
+        System.out.println(templateService.getTemplateInfoList(1L));
+    }
 }

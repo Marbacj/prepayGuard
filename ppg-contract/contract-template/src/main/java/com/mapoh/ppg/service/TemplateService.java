@@ -1,5 +1,6 @@
 package com.mapoh.ppg.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.TemplateRequest;
 import com.mapoh.ppg.entity.ContractTemplate;
 import com.mapoh.ppg.vo.CommonResponse;
@@ -15,6 +16,8 @@ public interface TemplateService {
     String buildTemplate(TemplateRequest request);
 
     ContractTemplateResponse getTemplate(Integer templateId);
+
+    JSONObject getTemplateInfoList(Long merchantId);
 
 //    String getTemplateName(Integer templateId);
 }

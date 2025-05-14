@@ -1,11 +1,13 @@
 package com.mapoh.ppg.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.LoginRequest;
 import com.mapoh.ppg.dto.RegisterRequest;
 import com.mapoh.ppg.service.JwtService;
 import com.mapoh.ppg.util.JwtUtil;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.entity.User;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,8 +50,18 @@ public class AuthController {
         return CommonResponse.errorResponse(401, "Invalid Info", null);
     }
 
+
+    /**
+     *
+     * {
+     *     "userName:
+     *     "token
+     * }
+     * @param loginRequest
+     * @return
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public CommonResponse<String> login(@RequestBody LoginRequest loginRequest) {
+    public CommonResponse<JSONObject> login(@RequestBody LoginRequest loginRequest) {
 
         String username = loginRequest.getUserName();
         String password = loginRequest.getPassword();
@@ -58,7 +70,10 @@ public class AuthController {
         if(token == null) {
             return CommonResponse.errorResponse(401, "Invalid userName or password", null);
         }
-        return CommonResponse.successResponse(token);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("token", token);
+        jsonObject.put("userName", username);
+        return CommonResponse.successResponse(jsonObject);
     }
 
     @RequestMapping(value = "/checkJwt")

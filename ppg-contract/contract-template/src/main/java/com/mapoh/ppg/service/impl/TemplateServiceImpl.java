@@ -1,5 +1,6 @@
 package com.mapoh.ppg.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.ActivationMethod;
 import com.mapoh.ppg.constants.ValidityUnit;
 import com.mapoh.ppg.dao.ContractTemplateDao;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -58,11 +60,12 @@ public class TemplateServiceImpl implements TemplateService {
         Boolean refundable = request.getRefundable();
         String refundPolicy = request.getRefundPolicy();
         String termsAndConditions = request.getTermsAndConditions();
+        Long merchantId = request.getMerchantId();
 
         // 验证模板名称是否重复
         boolean exists = contractTemplateDao.existsByTemplateName(templateName);
         if (exists) {
-            return "The template name already exists";
+            return "failed";
         }
 
         // 创建 ContractTemplate 实体对象
@@ -78,7 +81,7 @@ public class TemplateServiceImpl implements TemplateService {
         contractTemplate.setTermsAndConditions(termsAndConditions);
         contractTemplate.setCreatedAt(LocalDateTime.now());
         contractTemplate.setUpdatedAt(LocalDateTime.now());
-
+        contractTemplate.setMerchantId(merchantId);
         try {
             // 保存到数据库
             contractTemplateDao.save(contractTemplate);
@@ -116,7 +119,30 @@ public class TemplateServiceImpl implements TemplateService {
         contractTemplateResponse.setValidityUnit(contractTemplate.map(ContractTemplate::getValidityUnit).orElse(null));
         contractTemplateResponse.setActivationMethod(contractTemplate.map(ContractTemplate::getActivationMethod).orElse(null));
         contractTemplateResponse.setRefundable(contractTemplate.map(ContractTemplate::getRefundable).orElse(null));
+        contractTemplateResponse.setTemplateName(templateName);
         return contractTemplateResponse;
+    }
+
+    @Override
+    public JSONObject getTemplateInfoList(Long merchantId) {
+        if(merchantId == null) {
+            return null;
+        }
+
+        List<ContractTemplate> contractTemplate = contractTemplateDao.findContractTemplateByMerchantId(merchantId);
+        JSONObject result = new JSONObject();
+        for(ContractTemplate template : contractTemplate){
+            JSONObject temp = new JSONObject();
+            temp.put("templateId", template.getTemplateId());
+            temp.put("templateName", template.getTemplateName());
+            temp.put("unitAmount", template.getUnitAmount());
+            temp.put("validityPeriod", template.getValidityPeriod());
+            temp.put("validityUnit", template.getValidityUnit());
+            temp.put("activationMethod", template.getActivationMethod());
+            temp.put("refundable", template.getRefundable());
+            result.put(template.getTemplateName(), temp);
+        }
+        return result;
     }
 
 //    @Override
