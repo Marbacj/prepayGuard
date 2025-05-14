@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author mabohv
@@ -38,20 +41,21 @@ public class UserServiceImpl implements UserService {
     public boolean settlement(Long userId, BigDecimal amount) {
         BigDecimal balance = userDao.getBalance(userId);
 
-        boolean result = balance.compareTo(amount) > 0;
-
-        BigDecimal sub = balance.subtract(amount);
-
-        try {
-            if (result) {
-                userDao.modifyUserBalance(userId, sub);
-            }
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+        // 判断余额是否足够
+        if (balance.compareTo(amount) < 0) {
+            // 余额不足，结算失败
             return false;
         }
 
+        // 执行扣款
+        BigDecimal newBalance = balance.subtract(amount);
+        try {
+            userDao.modifyUserBalance(userId, newBalance);
+            return true;
+        } catch (Exception e) {
+            logger.error("用户结算失败: {}", e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -83,5 +87,24 @@ public class UserServiceImpl implements UserService {
         }
         result = userDao.modifyUserInfoWithPassword(id, accountName, email, phone, password);
         return result == 1;
+    }
+
+    @Override
+    public List<JSONObject> getAllUsers() {
+        List<User> users = userDao.findAll();
+        logger.info("getAllUsers: {}", users);
+        List<JSONObject> result = new ArrayList<>();
+        if (users.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            for(User user : users) {
+                result.add(new JSONObject()
+                        .fluentPut("id", user.getId())
+                        .fluentPut("userName", user.getUserName())
+                        .fluentPut("phoneNumber", user.getPhoneNumber())
+                        .fluentPut("email", user.getEmail()));
+            }
+        }
+        return result;
     }
 }

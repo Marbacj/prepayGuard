@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractTemplateResponse {
+    private String templateName;
     private BigDecimal unitAmount;
     private Integer validityPeriod;
     private ValidityUnit validityUnit;

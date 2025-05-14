@@ -1,5 +1,7 @@
 package com.mapoh.ppg.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.CreateContractRequest;
 import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.service.DistributionService;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author mabohv
@@ -24,6 +27,7 @@ import java.math.BigDecimal;
  */
 
 @RestController
+@CrossOrigin
 public class DistributionController {
 
     public static Logger logger = LoggerFactory.getLogger(DistributionController.class);
@@ -55,7 +59,7 @@ public class DistributionController {
      * @param createContractRequest
      * @return
      */
-    @PostMapping("/create")
+    @PostMapping("/create/byTemplate")
     public CommonResponse<Long> createContract(@RequestBody CreateContractRequest createContractRequest) {
         if (createContractRequest.getUserId() == null
                 || createContractRequest.getTemplateId() == null) {
@@ -64,6 +68,7 @@ public class DistributionController {
         }
         return CommonResponse.successResponse(distributionService.createContract(createContractRequest));
     }
+
 
     /**
      * @param signContractRequest
@@ -167,22 +172,46 @@ public class DistributionController {
         return CommonResponse.successResponse(distributionService.getNewCustomer(merchantId));
     }
 
+    @GetMapping("/getContractList/{merchantId}")
+    public CommonResponse<List<JSONObject>> getContractList(@PathVariable("merchantId") Long merchantId) {
+        return CommonResponse.successResponse(distributionService.getContractListByMerchantId(merchantId));
+    }
+
+    @PostMapping("/delete/{contractId}")
+    public CommonResponse<String> deleteContract(@PathVariable("contractId") Long ContractId){
+        if(ContractId == null)
+            return CommonResponse.successResponse("contractId is null");
+        return CommonResponse.successResponse(distributionService.deleteContract(ContractId));
+    }
+
+    /**
+     * {
+     *     "userId"
+     *     "merchantId"
+     * }
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/userhistory/contractList/{userId}")
+    public CommonResponse<List<JSONObject>> getUserHistoryContractList(@PathVariable("userId") Long userId){
+        return CommonResponse.successResponse(distributionService.getUserHistoryContractList(userId));
+    }
+
+    /**
+     * getUnpayedContractList
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getUnpayed/contractList/{userId}")
+    public CommonResponse<List<JSONObject>> getUnpayedContractList(@PathVariable("userId") Long userId){
+        return CommonResponse.successResponse(distributionService.getUnpayedContractList(userId));
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @PostMapping("refund/updateStatus/{contractId}")
+    public CommonResponse<Boolean> updateRefundStatus(@PathVariable("contractId") Long contractId){
+        return CommonResponse.successResponse(distributionService.changeStatusToRefund(contractId));
+    }
 
 }

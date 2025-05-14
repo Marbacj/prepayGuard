@@ -33,6 +33,9 @@ import java.sql.Timestamp;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.mapoh.ppg.entity.Transaction.TransactionStatus.FAILED;
+import static com.mapoh.ppg.entity.Transaction.TransactionStatus.SUCCESS;
+
 /**
  * @author mabohv
  * @date 2025/1/14 21:20
@@ -94,42 +97,40 @@ public class PaymentServiceImpl implements PaymentService {
             logger.info("It's missed excepted param");
         }
         ContractVo contract = contractServiceFeign.getContractVo(contractId).getData();
+        logger.info("this is contract info:{}", contract);
+
         BigDecimal amount = contract.getTotalAmount();
 
         BigDecimal balance = userServiceFeign.getBalance(userId).getData();
-
+        Long merchantId = contract.getMerchantId();
         if(balance.compareTo(amount) < 0) {
             logger.error("the user balance is not enough:{}", balance);
             return false;
         }
-        try {
 
-            kafkaTemplate.executeInTransaction(kafkaOperations -> {
-                try {
-                    Boolean settlementResult = userServiceFeign.settlement(new SettlementRequest(userId, amount)).getData();
-                    if(!settlementResult) {
-                        throw new RuntimeException("settlement failed");
-                    }
-
-                    Boolean changedResult = contractServiceFeign.validContract(contractId).getData();
-                    if(!changedResult) {
-                        throw new RuntimeException("valid_contract failed");
-                    }
-
-                    String paymentMessage = String.format("{\"userId\": %d, \"contractId\": %d, \"amount\": %s}",
-                            userId, contractId, amount);
-                    kafkaOperations.send(TRANSACTION_TOPIC, paymentMessage);
-                    logger.info("Transaction commited successfully");
-
-                } catch (Exception e) {
-                    logger.error("Transaction failed");
-                    throw new RuntimeException(e);
+        Transaction transaction = new Transaction(contractId, userId, amount);
+        transaction.setMerchantId(merchantId);
+            try {
+                Boolean settlementResult = userServiceFeign.settlement(new SettlementRequest(userId, amount)).getData();
+                if(!settlementResult) {
+                    throw new RuntimeException("settlement failed");
                 }
+                Boolean changedResult = contractServiceFeign.validContract(contractId).getData();
+                if(!changedResult) {
+                    throw new RuntimeException("valid_contract failed");
+                }
+                transaction.setStatus(SUCCESS);
+                logger.info("Transaction commited successfully");
 
-                return true;
-            });
+            } catch (Exception e) {
+                transaction.setStatus(FAILED);
+                logger.error("Transaction failed");
+                throw new RuntimeException(e);
+            }
+            logger.info("insert transaction:{}", transaction);
+            transactionDao.save(transaction);
 
-            Long merchantId = contract.getMerchantId();
+
 
             ContractScheduledRequest contractScheduledRequest = new ContractScheduledRequest();
             contractScheduledRequest.setContractId(contractId);
@@ -149,16 +150,14 @@ public class PaymentServiceImpl implements PaymentService {
                 redisTemplate.opsForSet().add("contract_tasks" + contractId, taskId);
             }
             return true;
-        }catch (Exception e) {
-            logger.error("change status or settlement error:{}", e.getMessage());
-            return false;
-        }
     }
 
 
     /**
      * 审核过程需要较长时间，可以通过消息通知来告知客户退款是否通过。
      * 后台服务在审核完退款申请后可以通过推送、邮件或短信通知用户或前端。
+     *
+     *
      * @param refundRequest
      * @return
      */
@@ -169,7 +168,8 @@ public class PaymentServiceImpl implements PaymentService {
         Long contractId = refundRequest.getContractId();
         String refundReason = refundRequest.getReason();
 
-        kafkaTemplate.send(TOPIC, refundRequest);
+        Boolean changeContractToRefund = contractServiceFeign.updateRefundStatus(contractId).getData();
+
         return true;
     }
 

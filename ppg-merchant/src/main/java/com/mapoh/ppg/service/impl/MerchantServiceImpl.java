@@ -1,5 +1,6 @@
 package com.mapoh.ppg.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dao.MerchantDao;
 import com.mapoh.ppg.entity.Merchant;
 import com.mapoh.ppg.feign.PaymentServiceFeign;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -138,6 +141,11 @@ public class MerchantServiceImpl implements MerchantService {
         Double income = 0.0;
         income =  paymentServiceFeign.getMerchantTodayIncome(merchantId).getData();
         return income;
+    }
+
+    @Override
+    public List<JSONObject> getMerchantList(JSONObject merchantIds) {
+        return Collections.emptyList();
     }
 
 }

@@ -32,4 +32,14 @@ public class ContractVoDistributionApplicationTest {
     public void test2(){
         System.out.println(distributionService.getPendingOrderByMerchantId(1000006L));
     }
+
+    @Test
+    public void test3(){
+        System.out.println(distributionService.getContractVoByContractId(1014L));
+    }
+
+    @Test
+    public void test4(){
+        System.out.println(distributionService.getUserHistoryContractList(1002873L));
+    }
 }

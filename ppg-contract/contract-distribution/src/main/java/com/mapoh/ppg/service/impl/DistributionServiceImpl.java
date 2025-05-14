@@ -1,5 +1,6 @@
 package com.mapoh.ppg.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.constants.Role;
 import com.mapoh.ppg.constants.ContractStatus;
 import com.mapoh.ppg.constants.ValidityUnit;
@@ -9,22 +10,24 @@ import com.mapoh.ppg.dto.SignContractRequest;
 import com.mapoh.ppg.dto.NotificationRequest;
 import com.mapoh.ppg.entity.Contract;
 import com.mapoh.ppg.feign.ContractTemplateFeign;
+import com.mapoh.ppg.feign.MerchantFeign;
 import com.mapoh.ppg.service.DistributionService;
 import com.mapoh.ppg.vo.CommonResponse;
 import com.mapoh.ppg.vo.ContractTemplateResponse;
 import com.mapoh.ppg.vo.ContractVo;
+import org.bouncycastle.asn1.cms.TimeStampedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author mabohv
@@ -40,14 +43,22 @@ public class DistributionServiceImpl implements DistributionService {
 
     public static Logger logger = LoggerFactory.getLogger(DistributionServiceImpl.class);
 
+    @Resource
+    private final MerchantFeign merchantFeign;
+
     @SuppressWarnings("all")
     @Autowired
     public DistributionServiceImpl(ContractTemplateFeign contractTemplateFeign,
-                                   ContractDao contractDao) {
+                                   ContractDao contractDao,
+                                   MerchantFeign merchantFeign) {
         this.contractTemplateFeign = contractTemplateFeign;
         this.contractDao = contractDao;
+        this.merchantFeign = merchantFeign;
     }
 
+//    public DistributionServiceImpl(ContractDao contractDao){
+//        this
+//    }
     //todo: require location info
     //todo: try to acquire template id from template service
     //todo: change uuid to snowflake
@@ -94,6 +105,7 @@ public class DistributionServiceImpl implements DistributionService {
         contract.setTotalUnits(createContractRequest.getTotalUnits());
         contract.setActivationDate(LocalDate.now());
         contract.setContractCode(contractCode);
+        contract.setContractName(template.getTemplateName());
         // 保存合同
         contractDao.save(contract);
         NotificationRequest notificationRequest = new NotificationRequest();
@@ -196,12 +208,24 @@ public class DistributionServiceImpl implements DistributionService {
 
     @Override
     public ContractVo getContractVoByContractId(Long contractId) {
-        ValidityUnit validityUnit = contractDao.getValidityUnitByContractId(contractId);
+
+//        ValidityUnit validityUnit = contractDao.getValidityUnitByContractId(contractId);
+//        Timestamp unitTime = transferUnitToTimestamp(validityUnit, 1);
+//        ContractVo contractVo = contractDao.getContractVoByContractId(contractId);
+//        Integer validityPeriod = contractDao.getValidityPeriodByContractId(contractId);
+//        contractVo.setUnitTime(unitTime);
+//        contractVo.setValidityPeriod(validityPeriod);
+        Contract contract = contractDao.getContractByContractId(contractId);
+        ValidityUnit validityUnit = contract.getValidityUnit();
         Timestamp unitTime = transferUnitToTimestamp(validityUnit, 1);
-        ContractVo contractVo = contractDao.getContractVoByContractId(contractId);
-        Integer validityPeriod = contractDao.getValidityPeriodByContractId(contractId);
+        ContractVo contractVo = new ContractVo();
+        contractVo.setUserId(contract.getUserId());
+        contractVo.setMerchantId(contract.getMerchantId());
         contractVo.setUnitTime(unitTime);
-        contractVo.setValidityPeriod(validityPeriod);
+        contractVo.setUnitAmount(contract.getUnitAmount());
+        contractVo.setTotalUnits(contract.getTotalUnits());
+        contractVo.setTotalAmount(contract.getTotalAmount());
+        contractVo.setValidityPeriod(contract.getValidityPeriod());
         return contractVo;
     }
 
@@ -217,6 +241,128 @@ public class DistributionServiceImpl implements DistributionService {
         return contractDao.getNewCustomer(merchantId);
     }
 
+    @Override
+    public List<JSONObject> getRelatedCustomers(Long merchantId) {
+
+        if(merchantId == null){
+            logger.info("merchantId is null:{}", merchantId);
+            return Collections.emptyList();
+        }
+        List<JSONObject> result = new ArrayList<>();
+        List<Contract> contracts = contractDao.findByMerchantId(merchantId);
+        List<Long> userIds = contracts.stream()
+                .map(Contract::getUserId)
+                .collect(Collectors.toList());
+        List<JSONObject> resultList = merchantFeign.getMerchantDetails(userIds);
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<JSONObject> getContractListByMerchantId(Long merchantId) {
+        List<Contract> contracts = contractDao.findByMerchantId(merchantId);
+        logger.info("this is contract List:{}", contracts);
+        List<JSONObject> result = new ArrayList<>();
+        for (Contract contract : contracts){
+            result.add(new JSONObject()
+                    .fluentPut("contractName", contract.getContractName())
+                    .fluentPut("contractId", contract.getContractId())
+                    .fluentPut("userId", contract.getUserId())
+                    .fluentPut("merchantId", contract.getMerchantId())
+                    .fluentPut("templateId", contract.getTemplateId())
+                    .fluentPut("contractCode", contract.getContractCode())
+                    .fluentPut("unitAmount", contract.getUnitAmount())
+                    .fluentPut("totalUnits", contract.getTotalUnits())
+                    .fluentPut("startTime", contract.getCreatedAt())
+                    .fluentPut("endTime", contract.getLatestActivationDate())
+                    .fluentPut("status", contract.getStatus())
+            );
+        }
+        return result;
+    }
+
+    @Override
+    public String deleteContract(Long contractId) {
+        if(contractId == null)
+            return "contractId is null";
+        try {
+            contractDao.deleteById(contractId);
+            return "Contract deleted successfully.";
+        } catch (Exception e) {
+            logger.error("Error deleting contract with ID: {}", contractId, e);
+            return "Error deleting contract.";
+        }
+    }
+
+    @Override
+    public List<JSONObject> getUserHistoryContractList(Long userId) {
+        if(userId == null){
+            logger.info("userId is null:{}", userId);
+            return Collections.emptyList();
+        }
+        List<Contract> contracts = contractDao.findByUserId(userId);
+        List<JSONObject> result = new ArrayList<>();
+        for (Contract contract : contracts){
+            // 计算 endTime：activationDate + validityPeriod + validityUnit
+            LocalDate activationDate = contract.getActivationDate() != null
+                    ? contract.getActivationDate()
+                    : null;
+            LocalDate endTime = null;
+            if (activationDate != null && contract.getValidityPeriod() != null && contract.getValidityUnit() != null) {
+                switch (contract.getValidityUnit()) {
+                    case YEAR:
+                        endTime = activationDate.plusYears(contract.getValidityPeriod());
+                        break;
+                    case MONTH:
+                        endTime = activationDate.plusMonths(contract.getValidityPeriod());
+                        break;
+                    case WEEK:
+                        endTime = activationDate.plusWeeks(contract.getValidityPeriod());
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported validity unit: " + contract.getValidityUnit());
+                }
+            }
+            result.add(new JSONObject()
+                    .fluentPut("contractName", contract.getContractName())
+                    .fluentPut("contractId", contract.getContractId())
+                    .fluentPut("userId", contract.getUserId())
+                    .fluentPut("merchantId", contract.getMerchantId())
+                    .fluentPut("templateId", contract.getTemplateId())
+                    .fluentPut("contractCode", contract.getContractCode())
+                    .fluentPut("endTime", endTime != null ? endTime.toString() : null)
+                    .fluentPut("status", contract.getStatus())
+                    .fluentPut("totalAmount", contract.getTotalAmount())
+            );
+        }
+        return result;
+    }
+
+    @Override
+    public List<JSONObject> getUnpayedContractList(Long userId) {
+        List<Contract> contracts = contractDao.findByUserIdAndStatus(userId, ContractStatus.SIGNED);
+        List<JSONObject> result = new ArrayList<>();
+        for (Contract contract : contracts) {
+            result.add(new JSONObject()
+                    .fluentPut("contractName", contract.getContractName())
+                    .fluentPut("contractId", contract.getContractId())
+                    .fluentPut("userId", contract.getUserId())
+                    .fluentPut("merchantId", contract.getMerchantId())
+                    .fluentPut("templateId", contract.getTemplateId())
+                    .fluentPut("contractCode", contract.getContractCode())
+                    .fluentPut("totalAmount", contract.getTotalAmount())
+                    .fluentPut("createdAt", contract.getCreatedAt())
+            );
+        }
+        return result;
+    }
+
+    @Override
+    public Boolean changeStatusToRefund(Long contractId) {
+        Boolean result = contractDao.changeStatusToRefund(contractId);
+        logger.info("Contract ID: {} status updated to Refunding.", contractId);
+        return result;
+    }
+
     private String handleUserSigning(Long contractId, Long signerId, String currentStatus) {
         if (ContractStatus.MERCHANTSIGN.toString().equals(currentStatus)) {
             contractDao.updateContractStatusToSigned(contractId);
@@ -224,8 +370,8 @@ public class DistributionServiceImpl implements DistributionService {
             return "The contract has been executed.";
         }
         logger.info("test contractStatus: {}", ContractStatus.MERCHANTSIGN.toString());
-        contractDao.updateUserSignStatus(signerId);
-        logger.info("User ID: {} signed the contract successfully.", signerId);
+        contractDao.updateUserSignStatus(contractId);
+        logger.info("User ID: {} signed the contract successfully.", contractId);
         return "Contract signed successfully by User.";
     }
 
@@ -235,8 +381,8 @@ public class DistributionServiceImpl implements DistributionService {
             logger.info("Contract ID: {} status updated to Execute. Merchant signed.", contractId);
             return "The contract has been executed.";
         }
-        contractDao.updateMerchantSignStatus(signerId);
-        logger.info("Merchant ID: {} signed the contract successfully.", signerId);
+        contractDao.updateMerchantSignStatus(contractId);
+        logger.info("Merchant ID: {} signed the contract successfully.", contractId);
         return "Contract signed successfully by Merchant.";
     }
 
@@ -285,4 +431,5 @@ public class DistributionServiceImpl implements DistributionService {
         timestamp = new Timestamp(calendar.getTimeInMillis());
         return timestamp;
     }
+
 }

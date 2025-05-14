@@ -140,4 +140,6 @@ public class ContractTemplateController {
     public CommonResponse<JSONObject> getTemplateInfoList(@PathVariable("merchantId") Long merchantId) {
         return CommonResponse.successResponse(templateService.getTemplateInfoList(merchantId));
     }
+
+
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.mapoh.ppg.dto.UserInfoRequest;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author mabohv
@@ -24,4 +25,6 @@ public interface UserService {
     Boolean rechargeInBalance(String accountName, BigDecimal amount);
 
     Boolean modifyUserInfo(Long id, String accountName, String email, String phone, String password);
+
+    List<JSONObject> getAllUsers();
 }

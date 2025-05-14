@@ -72,4 +72,14 @@ public class ContractFeignHystrix implements ContractServiceFeign {
                 null
         );
     }
+
+    @Override
+    public CommonResponse<Boolean> updateRefundStatus(Long contractId) {
+        logger.warn("[eureka-client-ppg-contract]:updateRefundStatus error:{}", contractId);
+        return CommonResponse.errorResponse(
+                -1,
+                "",
+                null
+        );
+    }
 }

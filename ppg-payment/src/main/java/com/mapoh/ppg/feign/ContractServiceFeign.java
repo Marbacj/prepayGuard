@@ -29,6 +29,9 @@ public interface ContractServiceFeign {
     @GetMapping("ppg-contract/distribution/getContractId/{contractId}")
     CommonResponse<Long> getMerchantId(@PathVariable("contractId") Long contractId);
 
-    @GetMapping("/getContractVo/{contractId}")
+    @GetMapping("/ppg-contract/distribution/getContractVo/{contractId}")
     public CommonResponse<ContractVo> getContractVo(@PathVariable("contractId") Long contractId);
+
+    @PostMapping("/ppg-contract/distribution/refund/updateStatus/{contractId}")
+    public CommonResponse<Boolean> updateRefundStatus(@PathVariable("contractId") Long contractId);
 }

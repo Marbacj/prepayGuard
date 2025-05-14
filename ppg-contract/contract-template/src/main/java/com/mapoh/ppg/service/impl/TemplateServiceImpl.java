@@ -119,6 +119,7 @@ public class TemplateServiceImpl implements TemplateService {
         contractTemplateResponse.setValidityUnit(contractTemplate.map(ContractTemplate::getValidityUnit).orElse(null));
         contractTemplateResponse.setActivationMethod(contractTemplate.map(ContractTemplate::getActivationMethod).orElse(null));
         contractTemplateResponse.setRefundable(contractTemplate.map(ContractTemplate::getRefundable).orElse(null));
+        contractTemplateResponse.setTemplateName(templateName);
         return contractTemplateResponse;
     }
 

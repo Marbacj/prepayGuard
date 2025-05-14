@@ -46,7 +46,7 @@ zuul:
     # 支付微服务
     payment:
       path: /ppg-payment/**
-      service-id: eureka-client-ppg-payment
+      service-id: eureka-client-contract-payment
       strip-prefix: false
 
 

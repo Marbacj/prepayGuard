@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author mabohv
@@ -148,5 +149,8 @@ public class AuthController {
         return CommonResponse.successResponse(merchantService.getIncomeByMerchantId(merchantId));
     }
 
-
+    @GetMapping("/getMerchantList")
+    public CommonResponse<List<JSONObject>> getMerchantList(@RequestBody JSONObject merchantIds) {
+        return CommonResponse.successResponse(merchantService.getMerchantList(merchantIds));
+    }
 }

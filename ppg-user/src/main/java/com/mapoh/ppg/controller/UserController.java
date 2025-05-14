@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -130,5 +131,11 @@ public class UserController {
             return CommonResponse.successResponse(Boolean.FALSE);
         }
         return CommonResponse.successResponse(userService.rechargeInBalance(accountName, amount));
+    }
+
+    @GetMapping("users/all")
+    public CommonResponse<List<JSONObject>> getAllUsers() {
+        List<JSONObject> users = userService.getAllUsers();
+        return CommonResponse.successResponse(users);
     }
 }

@@ -47,6 +47,7 @@ import static org.bouncycastle.crypto.tls.ConnectionEnd.client;
  */
 
 @RestController
+@CrossOrigin
 public class PaymentController {
 
     private final static Logger logger = LoggerFactory.getLogger(PaymentController.class);
